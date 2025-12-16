@@ -113,6 +113,36 @@ class ApiService {
   async getProviderSignup(email: string) {
     return this.request(`/provider-signups/${email}`)
   }
+
+  /**
+   * Upload business license file
+   * @param file - File object to upload
+   * @returns Promise with file URL and metadata
+   */
+  async uploadBusinessLicense(file: File): Promise<{
+    url: string
+    fileName: string
+    size: number
+  }> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE_URL}/provider-signups/upload`, {
+      method: 'POST',
+      body: formData,
+      // Don't set Content-Type header - browser will set it with boundary
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        error: { message: 'An error occurred' },
+      }))
+      throw new Error(error.error?.message || 'File upload failed')
+    }
+
+    const result = await response.json()
+    return result.data
+  }
 }
 
 export const apiService = new ApiService()

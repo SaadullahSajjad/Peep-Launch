@@ -347,6 +347,27 @@ select.vehicle-input:disabled {
   width: 100%;
 }
 
+/* Skip button styling - text only, dark background on hover */
+.card-form .btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.card-form .btn-ghost:hover {
+  background: #242933;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
 @media (max-width: 768px) {
   h1 {
     font-size: 3rem;

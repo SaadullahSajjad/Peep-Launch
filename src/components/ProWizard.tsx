@@ -105,15 +105,31 @@ export default function ProWizard({
     setIsSubmitting(true)
 
     try {
-      // TODO: Upload license file to storage and get URL
-      // For now, we'll just save the file name
+      let licenseUrl: string | undefined = undefined
+      let licenseFileName: string | undefined = undefined
+
+      // Upload file if provided
+      if (licenseFile) {
+        try {
+          const uploadResult = await apiService.uploadBusinessLicense(licenseFile)
+          licenseUrl = uploadResult.url
+          licenseFileName = uploadResult.fileName
+        } catch (uploadError) {
+          console.error('Failed to upload license file:', uploadError)
+          alert('Failed to upload license file. Please try again.')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
+      // Submit wizard data with file URL
       const wizardData = {
         email,
         address,
         business_type: businessType,
         hourly_rate: hourlyRate ? parseFloat(hourlyRate) : undefined,
-        business_license_file_name: licenseFile?.name || undefined,
-        // business_license_url: uploadedFileUrl, // Will be added when file upload is implemented
+        business_license_url: licenseUrl,
+        business_license_file_name: licenseFileName,
       }
 
       await apiService.updateProviderSignup(wizardData)
@@ -171,7 +187,13 @@ export default function ProWizard({
               readOnly
             />
             <label className="form-label">Address</label>
-            <input type="text" className="form-control" placeholder="123 Main St" />
+            <input
+              type="text"
+              className="form-control"
+              placeholder="123 Main St"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
               <button className="btn btn-primary" onClick={() => next(2)}>
                 Next
@@ -249,7 +271,7 @@ export default function ProWizard({
             <h1 style={{ fontSize: '1.5rem', color: 'white', marginBottom: '0.5rem' }}>
               Verify
             </h1>
-            <label className="upload-box" style={{ cursor: 'pointer' }}>
+            <label className="upload-box">
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -260,7 +282,7 @@ export default function ProWizard({
                 }}
               />
               <div className="material-icons-round upload-icon">cloud_upload</div>
-              <div style={{ color: '#94A3B8', fontSize: '0.9rem' }}>
+              <div className="upload-text">
                 {licenseFile ? licenseFile.name : 'Upload Business License'}
               </div>
             </label>
