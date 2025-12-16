@@ -1,0 +1,131 @@
+.modal-wizard {
+  background-color: var(--pro-bg);
+  color: var(--pro-text);
+  border: 1px solid #334155;
+  max-width: 500px;
+  width: 95%;
+}
+
+.wizard-step {
+  display: none;
+  animation: slideUpFade 0.3s ease;
+}
+
+.wizard-step.active {
+  display: block;
+}
+
+.wizard-progress-track {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.wizard-progress-track::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #334155;
+  z-index: 0;
+  transform: translateY(-50%);
+}
+
+.wp-step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1E293B;
+  border: 2px solid #334155;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #94A3B8;
+}
+
+.wp-step.active {
+  border-color: #F59E0B;
+  background: #F59E0B;
+  color: #0F172A;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+}
+
+.wp-step.completed {
+  border-color: #10B981;
+  background: #10B981;
+  color: white;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.type-option {
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  background: #1E293B;
+  position: relative;
+}
+
+.type-option:hover {
+  border-color: #94A3B8;
+}
+
+.type-option input {
+  position: absolute;
+  opacity: 0;
+}
+
+.type-option:has(input:checked) {
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.type-icon {
+  font-size: 2rem;
+  color: #94A3B8;
+  margin-bottom: 0.5rem;
+}
+
+.type-option:has(input:checked) .type-icon {
+  color: #F59E0B;
+}
+
+.type-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: white;
+}
+
+.upload-box {
+  border: 2px dashed #334155;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #1E293B;
+}
+
+.upload-box:hover {
+  border-color: #F59E0B;
+  background: #262f40;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  color: #94A3B8;
+  margin-bottom: 0.5rem;
+}
+
