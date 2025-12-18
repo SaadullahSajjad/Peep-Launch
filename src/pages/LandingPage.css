@@ -212,6 +212,41 @@ select.vehicle-input:disabled {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* Searchable Select Dropdown Styles */
+.searchable-select .vehicle-input {
+  position: relative;
+}
+
+.searchable-select .vehicle-input:focus {
+  border-color: var(--primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Custom scrollbar for dropdown */
+.searchable-select .searchable-select-options::-webkit-scrollbar {
+  width: 4px;
+}
+
+.searchable-select .searchable-select-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.searchable-select .searchable-select-options::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 2px;
+}
+
+.searchable-select .searchable-select-options::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+/* Firefox scrollbar */
+.searchable-select .searchable-select-options {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 transparent;
+}
+
 .fallback-input {
   display: none;
   margin-top: 0.5rem;

@@ -11,6 +11,7 @@ import { getCarMakes, getCarModels, generateYears } from '../data/carDatabase'
 import ContactModal from '../components/ContactModal'
 import ProModal from '../components/ProModal'
 import ProWizard from '../components/ProWizard'
+import SearchableSelect from '../components/SearchableSelect'
 import './LandingPage.css'
 
 export default function LandingPage() {
@@ -30,7 +31,9 @@ export default function LandingPage() {
   const [carMake, setCarMake] = useState('')
   const [carModel, setCarModel] = useState('')
   const [carModelOther, setCarModelOther] = useState('')
-  const [showModelOther, setShowModelOther] = useState(false)
+  
+  // Derive showModelOther directly from state values for instant updates
+  const showModelOther = carMake === 'Other' || carModel === 'Other'
   const [savedVehicle, setSavedVehicle] = useState<{
     year: string
     model: string
@@ -156,20 +159,15 @@ export default function LandingPage() {
   }
 
   const updateModels = () => {
-    if (carMake === 'Other') {
-      setShowModelOther(true)
-      setCarModel('')
-    } else {
-      setShowModelOther(false)
-      setCarModel('')
-    }
+    // Reset model when make changes
+    setCarModel('')
+    setCarModelOther('')
   }
 
   const checkOtherModel = (value: string) => {
-    if (value === 'Other') {
-      setShowModelOther(true)
-    } else {
-      setShowModelOther(false)
+    // Reset other model input when switching away from Other
+    if (value !== 'Other') {
+      setCarModelOther('')
     }
   }
 
@@ -181,6 +179,11 @@ export default function LandingPage() {
   const carMakes = getCarMakes()
   const carModels = carMake ? getCarModels(carMake) : []
   const years = generateYears()
+
+  // Prepare options for SearchableSelect components
+  const yearOptions = years.map((year) => ({ value: String(year), label: String(year) }))
+  const makeOptions = carMakes.map((make) => ({ value: make, label: make }))
+  const modelOptions = carModels.map((model) => ({ value: model, label: model }))
 
   return (
     <div className="landing-page">
@@ -325,71 +328,57 @@ export default function LandingPage() {
                     <div
                       style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}
                     >
-                      <select
+                      <SearchableSelect
                         id="car-year"
-                        className="vehicle-input"
-                        style={{ flex: 1 }}
                         value={carYear}
-                        onChange={(e) => setCarYear(e.target.value)}
+                        onChange={(value) => setCarYear(value)}
+                        options={yearOptions}
+                        placeholder="Year"
                         required
-                      >
-                        <option value="" disabled>
-                          Year
-                        </option>
-                        {years.map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                      <select
+                        style={{ flex: 1 }}
+                      />
+                      <SearchableSelect
                         id="car-make"
-                        className="vehicle-input"
-                        style={{ flex: 2 }}
                         value={carMake}
-                        onChange={(e) => {
-                          setCarMake(e.target.value)
+                        onChange={(value) => {
+                          setCarMake(value)
                           updateModels()
                         }}
+                        options={makeOptions}
+                        placeholder="Make"
                         required
-                      >
-                        <option value="" disabled>
-                          Make
-                        </option>
-                        {carMakes.map((make) => (
-                          <option key={make} value={make}>
-                            {make}
-                          </option>
-                        ))}
-                        <option value="Other">Other / Not Listed</option>
-                      </select>
+                        showOtherOption={true}
+                        onOtherSelect={() => {
+                          setCarMake('Other')
+                          updateModels()
+                        }}
+                        style={{ flex: 2 }}
+                      />
                     </div>
 
                     {!showModelOther ? (
-                      <select
+                      <SearchableSelect
                         id="car-model"
-                        className="vehicle-input"
-                        disabled={!carMake || carMake === 'Other'}
                         value={carModel}
-                        onChange={(e) => {
-                          setCarModel(e.target.value)
-                          checkOtherModel(e.target.value)
+                        onChange={(value) => {
+                          setCarModel(value)
+                          checkOtherModel(value)
                         }}
+                        options={modelOptions}
+                        placeholder={
+                          carMake
+                            ? 'Model'
+                            : 'Model (Select Make First)'
+                        }
+                        disabled={!carMake || carMake === 'Other'}
                         required
-                        style={{ marginBottom: '0.5rem' }}
-                      >
-                        <option value="" disabled>
-                          {carMake ? 'Model' : 'Model (Select Make First)'}
-                        </option>
-                        {carModels.map((model) => (
-                          <option key={model} value={model}>
-                            {model}
-                          </option>
-                        ))}
-                        {carModels.length > 0 && (
-                          <option value="Other">Other / Not Listed</option>
-                        )}
-                      </select>
+                        showOtherOption={carModels.length > 0}
+                        onOtherSelect={() => {
+                          setCarModel('Other')
+                          checkOtherModel('Other')
+                        }}
+                        style={{ marginBottom: '0.5rem'}}
+                      />
                     ) : (
                       <input
                         type="text"
