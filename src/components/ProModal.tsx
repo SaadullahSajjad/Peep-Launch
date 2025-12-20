@@ -23,7 +23,9 @@ export default function ProModal({
   const t = useTranslations(language)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [businessName, setBusinessName] = useState('')
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -60,6 +62,8 @@ export default function ProModal({
       await apiService.createProviderSignup({
         email,
         business_name: businessName,
+        full_name: fullName,
+        password,
         language,
       })
       setStoredBizName(businessName)
@@ -68,7 +72,9 @@ export default function ProModal({
       onClose()
       onOpenWizard()
       setBusinessName('')
+      setFullName('')
       setEmail('')
+      setPassword('')
     } catch (error) {
       console.error('Failed to submit provider registration:', error)
       alert('Error')
@@ -109,7 +115,21 @@ export default function ProModal({
             required
           />
 
-          <label className="form-label">{t('label_email')}</label>
+          <label className="form-label" style={{ marginTop: '0.5rem' }}>
+            Full Name
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Joseph Smith"
+            required
+          />
+
+          <label className="form-label" style={{ marginTop: '0.5rem' }}>
+            {t('label_email')}
+          </label>
           <input
             type="email"
             className="form-control"
@@ -117,6 +137,19 @@ export default function ProModal({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="partner@shop.com"
             required
+          />
+
+          <label className="form-label" style={{ marginTop: '0.5rem' }}>
+            Password
+          </label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            minLength={8}
           />
 
           <button

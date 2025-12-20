@@ -18,6 +18,8 @@ export interface ContactFormData {
 export interface ProviderSignupData {
   email: string
   business_name: string
+  full_name: string
+  password: string
   language?: 'en' | 'fr'
 }
 
@@ -31,6 +33,33 @@ export interface ProviderWizardData {
   hourly_rate?: number
   business_license_url?: string
   business_license_file_name?: string
+  services?: string
+  turnaround?: string
+  banner_url?: string
+  logo_url?: string
+}
+
+export interface ProviderSignup {
+  id: string
+  email: string
+  business_name: string
+  full_name?: string
+  address?: string
+  city?: string
+  province?: string
+  postal_code?: string
+  business_type?: string
+  hourly_rate?: number
+  business_license_url?: string
+  business_license_file_name?: string
+  services?: string
+  turnaround?: string
+  banner_url?: string
+  logo_url?: string
+  status: string
+  language?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface WaitlistStatus {
@@ -111,7 +140,41 @@ class ApiService {
   }
 
   async getProviderSignup(email: string) {
-    return this.request(`/provider-signups/${email}`)
+    return this.request<ProviderSignup>(`/provider-signups/${email}`)
+  }
+
+  async verifyProviderEmail(email: string, token: string) {
+    return this.request<{
+      verified: boolean
+      message: string
+      signup: any
+    }>(`/provider-signups/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`)
+  }
+
+  async loginProvider(email: string, password: string) {
+    return this.request<{
+      provider: any
+      token: string
+    }>('/provider-signups/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    })
+  }
+
+  async updateProviderProfile(email: string, profileData: {
+    name?: string
+    location?: string
+    rate?: string
+    turnaround?: string
+    services?: string
+  }) {
+    return this.request('/provider-signups', {
+      method: 'PUT',
+      body: JSON.stringify({
+        email,
+        ...profileData,
+      }),
+    })
   }
 
   /**
@@ -138,6 +201,30 @@ class ApiService {
         error: { message: 'An error occurred' },
       }))
       throw new Error(error.error?.message || 'File upload failed')
+    }
+
+    const result = await response.json()
+    return result.data
+  }
+
+  async uploadImage(file: File): Promise<{
+    url: string
+    fileName: string
+    size: number
+  }> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE_URL}/provider-signups/upload-image`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        error: { message: 'An error occurred' },
+      }))
+      throw new Error(error.error?.message || 'Image upload failed')
     }
 
     const result = await response.json()
