@@ -55,6 +55,11 @@ export default function ProfilePreview() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
 
   useEffect(() => {
+    // Ensure all dialogs are closed on mount
+    if (loginDialogRef.current) loginDialogRef.current.close()
+    if (editDialogRef.current) editDialogRef.current.close()
+    if (shareDialogRef.current) shareDialogRef.current.close()
+    
     // Check if user is logged in
     const token = localStorage.getItem('ppe_provider_auth_token')
     const providerEmail = localStorage.getItem('ppe_provider_email')
