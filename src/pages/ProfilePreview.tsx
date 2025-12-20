@@ -1,9 +1,16 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
 import { apiService } from '../utils/api'
 import html2canvas from 'html2canvas'
+import {
+  getStoredLanguage,
+  setStoredLanguage,
+  useTranslations,
+  type Language,
+} from '../utils/i18n'
 import './ProfilePreview.css'
 
 export default function ProfilePreview() {
+  const [language, setLanguage] = useState<Language>(getStoredLanguage())
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -14,6 +21,7 @@ export default function ProfilePreview() {
   const [downloadSuccess, setDownloadSuccess] = useState(false)
   const [providerId, setProviderId] = useState<string | null>(null)
   const badgePreviewRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations(language)
   
   // Modal refs
   const loginDialogRef = useRef<HTMLDialogElement>(null)
@@ -88,6 +96,16 @@ export default function ProfilePreview() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    setStoredLanguage(language)
+    document.documentElement.lang = language
+  }, [language])
+
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'fr' : 'en'
+    setLanguage(newLang)
+  }
 
   // Handle login modal
   useEffect(() => {
@@ -460,7 +478,7 @@ export default function ProfilePreview() {
         // Copy profile URL to clipboard
         try {
           await navigator.clipboard.writeText(profileUrl)
-          alert('Profile link copied to clipboard!')
+          alert(t('link_copied'))
         } catch (error) {
           // Fallback for older browsers
           const textArea = document.createElement('textarea')
@@ -494,30 +512,33 @@ export default function ProfilePreview() {
             Pee<span className="color">peep</span>
             <span className="brand-badge">Pro</span>
           </a>
+          <button className="lang-toggle" onClick={toggleLanguage}>
+            {language === 'en' ? 'FR' : 'EN'}
+          </button>
         </div>
 
         <div className="control-group">
-          <div className="control-label">Profile Status</div>
+          <div className="control-label">{t('profile_status_title')}</div>
           <div className="action-card">
             <div className="status-indicator">
               <div className="pulse-dot"></div>
-              <span>Live & Editable</span>
+              <span>{t('profile_status_live')}</span>
             </div>
             <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.5,marginBottom: 0 }}>
-              Your profile is visible to customers. Updates are applied in real-time.
+              {t('profile_status_desc')}
             </p>
           </div>
         </div>
 
         <div className="control-group">
-          <div className="control-label">Quick Actions</div>
+          <div className="control-label">{t('quick_actions')}</div>
           <button className="btn btn-sidebar" onClick={handleOpenShareModal}>
             <span className="material-icons-round">share</span>
-            <span>Share Verified Status</span>
+            <span>{t('btn_share_status')}</span>
           </button>
           <button className="btn btn-sidebar-outline" style={{ marginTop: '0.75rem' }} onClick={handleEdit}>
             <span className="material-icons-round">edit</span>
-            <span>Edit Profile</span>
+            <span>{t('btn_edit_profile')}</span>
           </button>
         </div>
 
@@ -543,17 +564,17 @@ export default function ProfilePreview() {
               <div className="user-avatar guest">
                 <span className="material-icons-round">person</span>
               </div>
-              <div className="user-info">
-                <div className="user-name">Guest View</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--sidebar-text)' }}>Login to Edit</div>
-              </div>
+            <div className="user-info">
+              <div className="user-name">{t('guest_view')}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--sidebar-text)' }}>{t('login_to_edit')}</div>
+            </div>
               <button className="btn-logout-icon">
                 <span className="material-icons-round">login</span>
               </button>
             </div>
           )}
           <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--text-muted)', marginTop: '1rem' }}>
-            Waitlist ID: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{providerId || '#PRO-8821'}</span>
+            {t('waitlist_id')}: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{providerId || '#PRO-8821'}</span>
           </div>
         </div>
       </aside>
@@ -561,9 +582,9 @@ export default function ProfilePreview() {
       <main className="main">
         <div className="header">
           <div>
-            <h1 className="page-title">Profile Preview</h1>
+            <h1 className="page-title">{t('page_title')}</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-              This is how customers will see you on the app.
+              {t('page_subtitle')}
             </p>
           </div>
         </div>
@@ -572,7 +593,7 @@ export default function ProfilePreview() {
           <div className="p-header" style={{ backgroundImage: profileData.bannerImage ? `url(${profileData.bannerImage})` : undefined }}>
             <div className="p-badge">
               <span className="material-icons-round" style={{ fontSize: '12px', color: '#F59E0B' }}>verified</span>
-              <span>Verified Partner</span>
+              <span>{t('verified_partner')}</span>
             </div>
           </div>
           <div className="p-body">
@@ -598,22 +619,22 @@ export default function ProfilePreview() {
             <div className="p-stats">
               <div className="p-stat-card">
                 <span className="stat-num">{profileData.rate}</span>
-                <span className="stat-label">Labor Rate</span>
+                <span className="stat-label">{t('label_labor_rate')}</span>
               </div>
               <div className="p-stat-card">
                 <span className="stat-num">{profileData.turnaround}</span>
-                <span className="stat-label">Avg Turnaround</span>
+                <span className="stat-label">{t('label_avg_turnaround')}</span>
               </div>
             </div>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--phone-text)', marginBottom: '8px' }}>
-              Services
+              {t('label_services')}
             </div>
             <div className="p-services">
               {servicesList.map((service, idx) => (
                 <span key={idx} className="service-pill">{service}</span>
               ))}
             </div>
-            <button className="p-btn">Request Quote</button>
+            <button className="p-btn">{t('btn_request_quote')}</button>
           </div>
         </div>
       </main>
@@ -621,13 +642,13 @@ export default function ProfilePreview() {
       {/* Login Modal */}
       <dialog ref={loginDialogRef} className="modal" onClose={() => setIsLoginModalOpen(false)}>
           <div className="modal-header">
-            <h3 className="modal-title">Provider Login</h3>
+            <h3 className="modal-title">{t('modal_login_title')}</h3>
             <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setIsLoginModalOpen(false)}>close</span>
           </div>
           <form onSubmit={handleLogin}>
             <div className="modal-body">
               <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-                To ensure security, you must log in to edit your public profile.
+                {t('modal_login_desc')}
               </p>
               
               {loginError && (
@@ -674,11 +695,11 @@ export default function ProfilePreview() {
                 {isLoading ? (
                   <>
                     <span className="material-icons-round" style={{ animation: 'spin 1s linear infinite' }}>sync</span>
-                    Logging in...
+                    {t('generating')}
                   </>
                 ) : (
                   <>
-                    <span className="material-icons-round">lock_open</span> Login & Edit
+                    <span className="material-icons-round">lock_open</span> {t('btn_edit_profile')}
                   </>
                 )}
               </button>
@@ -704,7 +725,7 @@ export default function ProfilePreview() {
                   disabled={isUploadingBanner}
                 />
                 <span className="material-icons-round">image</span>
-                <span>{isUploadingBanner ? 'Uploading...' : bannerPreview || profileData.bannerImage ? 'Banner Updated' : 'Update Banner'}</span>
+                <span>{isUploadingBanner ? t('generating') : bannerPreview || profileData.bannerImage ? t('btn_update_banner') + ' ✓' : t('btn_update_banner')}</span>
                 {(bannerPreview || profileData.bannerImage) && (
                   <span className="material-icons-round upload-status-icon">check</span>
                 )}
@@ -718,21 +739,21 @@ export default function ProfilePreview() {
                   disabled={isUploadingLogo}
                 />
                 <span className="material-icons-round">account_circle</span>
-                <span>{isUploadingLogo ? 'Uploading...' : logoPreview || profileData.avatarImage ? 'Logo Updated' : 'Update Logo'}</span>
+                <span>{isUploadingLogo ? t('generating') : logoPreview || profileData.avatarImage ? t('btn_update_logo') + ' ✓' : t('btn_update_logo')}</span>
                 {(logoPreview || profileData.avatarImage) && (
                   <span className="material-icons-round upload-status-icon">check</span>
                 )}
               </label>
             </div>
 
-            <label className="form-label">Shop Name</label>
+            <label className="form-label">{t('label_shop_name')}</label>
             <input
               type="text"
               className="form-control"
               value={editForm.name}
               onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
             />
-            <label className="form-label">Location</label>
+            <label className="form-label">{t('label_location')}</label>
             <input
               type="text"
               className="form-control"
@@ -741,7 +762,7 @@ export default function ProfilePreview() {
             />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label className="form-label">Labor Rate</label>
+                <label className="form-label">{t('label_labor_rate')}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -750,7 +771,7 @@ export default function ProfilePreview() {
                 />
               </div>
               <div>
-                <label className="form-label">Avg Turnaround</label>
+                <label className="form-label">{t('label_avg_turnaround')}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -759,7 +780,7 @@ export default function ProfilePreview() {
                 />
               </div>
             </div>
-            <label className="form-label">Services (Comma separated)</label>
+            <label className="form-label">{t('label_services_input')}</label>
             <input
               type="text"
               className="form-control"
@@ -779,7 +800,7 @@ export default function ProfilePreview() {
                   Saving...
                 </>
               ) : (
-                'Save Changes'
+                t('btn_save_changes')
               )}
             </button>
           </div>
@@ -821,12 +842,12 @@ export default function ProfilePreview() {
                     </>
                   ) : (
                     <>
-                      <span className="material-icons-round">download</span> Download Asset
+                      <span className="material-icons-round">download</span> {t('btn_download_asset')}
                     </>
                   )}
                 </button>
                 <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Share this on LinkedIn or Facebook to let customers know you are on the list.
+                  {t('share_desc')}
                 </div>
               </>
             ) : (
@@ -845,10 +866,10 @@ export default function ProfilePreview() {
                   <span className="material-icons-round" style={{ fontSize: '2rem' }}>check</span>
                 </div>
                 <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '0.5rem', color: 'var(--text-main)' }}>
-                  Saved to Gallery
+                  {t('share_success_title')}
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                  Your badge is ready. <strong>Post it now</strong> to signal trust to your customers.
+                  {t('share_success_desc')}
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
                   <button 
@@ -996,7 +1017,7 @@ export default function ProfilePreview() {
                     setDownloadSuccess(false)
                   }}
                 >
-                  Done
+                  {t('btn_done')}
                 </button>
               </div>
             )}

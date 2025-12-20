@@ -123,6 +123,22 @@
   margin-bottom: 2.5rem;
 }
 
+.sidebar .lang-toggle { 
+  font-size: 0.75rem; 
+  font-weight: 700; 
+  color: var(--sidebar-text); 
+  cursor: pointer; 
+  border: 1px solid rgba(255,255,255,0.1); 
+  padding: 4px 8px; 
+  border-radius: 6px; 
+  transition: 0.2s; 
+  background: transparent;
+}
+.sidebar .lang-toggle:hover { 
+  color: white; 
+  border-color: white; 
+}
+
 .brand {
   font-size: 1.5rem;
   font-weight: 800;
