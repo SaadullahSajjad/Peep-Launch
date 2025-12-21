@@ -189,7 +189,7 @@ export default function LandingPage() {
     <div className="landing-page">
       <div className="container">
         <header>
-          <a href="#" className="brand">
+          <a href="#" className="brandLanding">
             Pee<span>peep</span>
           </a>
 

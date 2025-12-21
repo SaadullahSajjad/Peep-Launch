@@ -9,7 +9,7 @@ header {
   z-index: 10;
 }
 
-.brand {
+.brandLanding {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   font-size: 2rem;
@@ -19,7 +19,8 @@ header {
   white-space: nowrap;
 }
 
-.brand span {
+header .brandLanding span,
+.brandLanding span {
   color: var(--primary);
 }
 
