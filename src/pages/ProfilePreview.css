@@ -156,7 +156,7 @@
 
 .brand-badge {
   background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 3px 8px;
@@ -166,6 +166,10 @@
   letter-spacing: 0.05em;
   font-family: 'Inter', sans-serif;
   transform: translateY(-2px);
+}
+
+.brand .brand-badge {
+  color: #FFFFFF !important;
 }
 
 .control-group {

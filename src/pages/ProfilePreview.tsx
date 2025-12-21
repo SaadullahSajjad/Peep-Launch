@@ -545,7 +545,13 @@ export default function ProfilePreview() {
         <div className="sidebar-footer">
           {isLoggedIn ? (
             <div className="user-profile-card">
-              <div className="user-avatar">{profileData.initials}</div>
+              <div className="user-avatar">
+                {profileData.avatarImage ? (
+                  <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
+                ) : (
+                  profileData.initials
+                )}
+              </div>
               <div className="user-info">
                 <div className="user-name">{profileData.name}</div>
                 <div style={{ marginTop: '2px' }}>
