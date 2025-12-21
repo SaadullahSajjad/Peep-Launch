@@ -544,7 +544,7 @@ export default function ProfilePreview() {
 
         <div className="sidebar-footer">
           {isLoggedIn ? (
-            <div className="user-profile-card">
+            <div className="user-profile-card gold-tier">
               <div className="user-avatar">
                 {profileData.avatarImage ? (
                   <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
@@ -556,7 +556,7 @@ export default function ProfilePreview() {
                 <div className="user-name">{profileData.name}</div>
                 <div style={{ marginTop: '2px' }}>
                   <span className="badge founding">
-                    <span className="material-icons-round" style={{ fontSize: '10px' }}>verified</span>
+                    <span className="material-icons-round" style={{ fontSize: '25px' }}>verified</span>
                     <span>Founding Partner</span>
                   </span>
                 </div>
@@ -579,7 +579,7 @@ export default function ProfilePreview() {
               </button>
             </div>
           )}
-          <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--text-muted)', marginTop: '1rem' }}>
+          <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--text-muted)' }}>
             {t('waitlist_id')}: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{providerId || '#PRO-8821'}</span>
           </div>
         </div>

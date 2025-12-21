@@ -84,8 +84,8 @@ export const translations = {
       'I just joined the waitlist for Peepeep - Automated Car Care. Skip the line with my link:',
     // Profile Preview translations
     profile_status_title: 'Profile Status',
-    profile_status_live: 'Live & Editable',
-    profile_status_desc: 'Your profile is visible to customers. Updates are applied in real-time.',
+    profile_status_live: 'Ready for Launch',
+    profile_status_desc: 'Your profile data is locked and secured. You will be live on Day 1 of the Q3 2025 rollout.',
     quick_actions: 'Quick Actions',
     btn_share_status: 'Share Verified Status',
     btn_edit_profile: 'Edit Profile',
