@@ -163,3 +163,20 @@
   transform: translateY(-1px);
 }
 
+/* Input fields should be dark to match the modal background */
+.modal-wizard .form-control {
+  background: #1E293B !important;
+  border: 1px solid #334155 !important;
+  color: white !important;
+}
+
+.modal-wizard .form-control:focus {
+  border-color: #F59E0B !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+  outline: none !important;
+}
+
+.modal-wizard .form-control::placeholder {
+  color: #94A3B8 !important;
+}
+
