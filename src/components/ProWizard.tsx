@@ -268,9 +268,12 @@ export default function ProWizard({
 
         {currentStep === 4 && (
           <div className="wizard-step active" id="w-step-4">
-            <h1 style={{ fontSize: '1.5rem', color: 'white', marginBottom: '0.5rem' }}>
-              Verify
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', marginBottom: '0.75rem' }}>
+              Get Verified (Recommended)
             </h1>
+            <p style={{ color: '#94A3B8', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              Upload your business license to get the Verified Badge and rank higher in search results.
+            </p>
             <label className="upload-box">
               <input
                 type="file"
@@ -283,7 +286,7 @@ export default function ProWizard({
               />
               <div className="material-icons-round upload-icon">cloud_upload</div>
               <div className="upload-text">
-                {licenseFile ? licenseFile.name : 'Upload Business License'}
+                {licenseFile ? licenseFile.name : 'Upload Business License '}
               </div>
             </label>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
