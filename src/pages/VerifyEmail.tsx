@@ -24,9 +24,9 @@ export default function VerifyEmail() {
         setStatus('success')
         setMessage(result.message || 'Email verified successfully!')
         
-        // Redirect to profile preview after 3 seconds
+        // Redirect to profile preview after 3 seconds with email parameter to indicate it came from email verification
         setTimeout(() => {
-          navigate('/profile-preview')
+          navigate(`/profile-preview?email=${encodeURIComponent(email)}&from=verify`)
         }, 3000)
       } catch (error: any) {
         setStatus('error')
@@ -62,7 +62,7 @@ export default function VerifyEmail() {
             </p>
             <button
               className="btn btn-primary"
-              onClick={() => navigate('/profile-preview')}
+              onClick={() => navigate(`/profile-preview?email=${encodeURIComponent(email || '')}&from=verify`)}
               style={{ marginTop: '2rem' }}
             >
               Go to Profile Preview

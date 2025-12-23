@@ -1,4 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { apiService } from '../utils/api'
 import html2canvas from 'html2canvas'
 import {
@@ -7,9 +8,12 @@ import {
   useTranslations,
   type Language,
 } from '../utils/i18n'
+import { initializeGoogleAuth, triggerGoogleSignIn, type GoogleUserInfo } from '../utils/googleOAuth'
 import './ProfilePreview.css'
 
 export default function ProfilePreview() {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [language, setLanguage] = useState<Language>(getStoredLanguage())
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -33,6 +37,9 @@ export default function ProfilePreview() {
     email: '',
     password: '',
   })
+  const [isClaiming, setIsClaiming] = useState(false) // true if claiming new account, false if logging in
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   
   // Profile data
   const [profileData, setProfileData] = useState({
@@ -73,9 +80,16 @@ export default function ProfilePreview() {
     const providerEmail = localStorage.getItem('ppe_provider_email')
     setIsLoggedIn(!!token)
 
-    // Load profile data from backend if logged in
+    // Get email from URL params (from email verification link) or localStorage
+    const emailFromUrl = searchParams.get('email')
+    const emailToLoad = emailFromUrl || providerEmail
+
+    // Load profile data from backend if logged in or if we have email from URL
     if (token && providerEmail) {
       loadProviderProfile(providerEmail)
+    } else if (emailToLoad) {
+      // Try to load profile even if not logged in (for first-time visitors from email)
+      loadProviderProfile(emailToLoad)
     } else {
       // Load from localStorage as fallback
       const savedData = localStorage.getItem('ppe_provider_data')
@@ -95,7 +109,7 @@ export default function ProfilePreview() {
         }
       }
     }
-  }, [])
+  }, [searchParams])
 
   useEffect(() => {
     setStoredLanguage(language)
@@ -107,17 +121,48 @@ export default function ProfilePreview() {
     setLanguage(newLang)
   }
 
+  // Initialize Google OAuth when login modal opens
+  useEffect(() => {
+    if (!isLoginModalOpen) return
+
+    let cleanup: (() => void) | undefined
+
+    try {
+      cleanup = initializeGoogleAuth(
+        async (userInfo: GoogleUserInfo, credential?: string) => {
+          setIsGoogleLoading(false)
+          await handleGoogleLogin(userInfo, credential)
+        },
+        (error) => {
+          console.error('Google sign-in error:', error)
+          setIsGoogleLoading(false)
+          setLoginError('Google sign-in failed. Please try again or use email/password login.')
+        }
+      )
+    } catch (error) {
+      console.error('Failed to initialize Google OAuth:', error)
+    }
+
+    return () => {
+      cleanup?.()
+    }
+  }, [isLoginModalOpen])
+
   // Handle login modal
   useEffect(() => {
     const dialog = loginDialogRef.current
     if (!dialog) return
 
     if (isLoginModalOpen) {
+      // Pre-fill email if available
+      if (profileData.email && !loginForm.email) {
+        setLoginForm({ ...loginForm, email: profileData.email })
+      }
       dialog.showModal()
     } else {
       dialog.close()
     }
-  }, [isLoginModalOpen])
+  }, [isLoginModalOpen, profileData.email])
 
   // Handle edit modal
   useEffect(() => {
@@ -152,6 +197,7 @@ export default function ProfilePreview() {
           const formattedId = `#PRO-${signup.id.substring(0, 4).toUpperCase()}`
           setProviderId(formattedId)
         }
+        
         
         // Map backend data to profile format
         const name = signup.business_name || "Joe's Garage"
@@ -192,11 +238,100 @@ export default function ProfilePreview() {
     }
   }
 
+  const handleGoogleLogin = async (userInfo: GoogleUserInfo, credential?: string) => {
+    setIsLoading(true)
+    setLoginError('')
+
+    try {
+      // If we have the credential, use Google OAuth login (password-less)
+      if (credential) {
+        try {
+          const result = await apiService.loginProviderWithGoogle(credential)
+          
+          // Successfully logged in with Google OAuth
+          localStorage.setItem('ppe_provider_auth_token', result.token)
+          localStorage.setItem('ppe_provider_email', userInfo.email)
+          localStorage.setItem('ppe_is_claimed', 'true')
+          
+          setIsLoggedIn(true)
+          setIsLoginModalOpen(false)
+          
+          // Remove from=verify parameter from URL after successful login
+          if (searchParams.get('from') === 'verify') {
+            const newParams = new URLSearchParams(searchParams)
+            newParams.delete('from')
+            navigate(`/profile-preview?${newParams.toString()}`, { replace: true })
+          }
+          
+          // Load profile data
+          await loadProviderProfile(userInfo.email)
+          
+          // Clear login form
+          setLoginForm({ email: '', password: '' })
+          setIsClaiming(false)
+          setIsLoading(false)
+          return
+        } catch (error: any) {
+          // If Google OAuth login fails, fall through to check account status
+          console.error('Google OAuth login failed:', error)
+          if (error.message && error.message.includes('No account found')) {
+            setLoginError('No account found with this Google email. Please sign up first.')
+            setIsLoading(false)
+            return
+          }
+          // Continue to check if password is needed
+        }
+      }
+
+      // Fallback: Check if account exists and needs password
+      const signup = await apiService.getProviderSignup(userInfo.email)
+      
+      if (!signup) {
+        setLoginError('No account found with this Google email. Please sign up first.')
+        setIsLoading(false)
+        return
+      }
+
+      // Check if email is verified
+      if (!signup.email_verified) {
+        setLoginError('Please verify your email address before logging in.')
+        setIsLoading(false)
+        return
+      }
+
+      // If we get here, Google OAuth login didn't work, so check if password is needed
+      setLoginForm({ ...loginForm, email: userInfo.email })
+      setIsClaiming(true)
+      setLoginError('Please set a password to complete your account setup. Your email has been pre-filled.')
+      setIsLoading(false)
+    } catch (error: any) {
+      console.error('Google login error:', error)
+      if (error.message && error.message.includes('not found')) {
+        setLoginError('No account found with this Google email. Please sign up first.')
+      } else {
+        setLoginError('Failed to login with Google. Please try using email/password login.')
+      }
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = () => {
+    try {
+      setIsGoogleLoading(true)
+      setLoginError('')
+      triggerGoogleSignIn()
+    } catch (error) {
+      console.error('Failed to trigger Google sign-in:', error)
+      setIsGoogleLoading(false)
+      setLoginError('Google OAuth is not configured. Please use email/password login.')
+    }
+  }
+
   const handleLogin = async (e?: FormEvent) => {
     if (e) e.preventDefault()
     
     if (!loginForm.email || !loginForm.password) {
-      setLoginError('Please enter both email and password')
+      setLoginError(isClaiming ? 'Please enter a password to claim your account' : 'Please enter both email and password')
       return
     }
 
@@ -204,22 +339,64 @@ export default function ProfilePreview() {
     setLoginError('')
 
     try {
-      const result = await apiService.loginProvider(loginForm.email, loginForm.password)
-      
-      // Store token and email
-      localStorage.setItem('ppe_provider_auth_token', result.token)
-      localStorage.setItem('ppe_provider_email', loginForm.email)
+      if (isClaiming) {
+        // Claim account - create password
+        await apiService.updateProviderSignup({
+          email: loginForm.email,
+          password: loginForm.password,
+        })
+        // Mark account as claimed in localStorage (same key as reference HTML)
+        localStorage.setItem('ppe_is_claimed', 'true')
+        // After claiming, log in
+        const result = await apiService.loginProvider(loginForm.email, loginForm.password)
+        localStorage.setItem('ppe_provider_auth_token', result.token)
+        localStorage.setItem('ppe_provider_email', loginForm.email)
+      } else {
+        // Regular login
+        const result = await apiService.loginProvider(loginForm.email, loginForm.password)
+        // Mark account as claimed (in case it wasn't set before)
+        localStorage.setItem('ppe_is_claimed', 'true')
+        localStorage.setItem('ppe_provider_auth_token', result.token)
+        localStorage.setItem('ppe_provider_email', loginForm.email)
+      }
       
       setIsLoggedIn(true)
       setIsLoginModalOpen(false)
+      
+      // Remove from=verify parameter from URL after successful login/claim
+      if (searchParams.get('from') === 'verify') {
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('from')
+        navigate(`/profile-preview?${newParams.toString()}`, { replace: true })
+      }
       
       // Load profile data
       await loadProviderProfile(loginForm.email)
       
       // Clear login form
       setLoginForm({ email: '', password: '' })
+      setIsClaiming(false)
     } catch (error: any) {
-      setLoginError(error.message || 'Login failed. Please check your credentials.')
+      // Handle different error scenarios
+      if (error.message && error.message.includes('Account not set up properly')) {
+        // Account exists but no password - switch to claim mode
+        setIsClaiming(true)
+        // Remove claimed flag if it exists
+        localStorage.removeItem('ppe_is_claimed')
+        setLoginError('Please create a password to claim your account.')
+      } else if (error.message && error.message.includes('Invalid email or password')) {
+        // Password exists but wrong - if we were in claim mode, switch to login mode
+        if (isClaiming) {
+          setIsClaiming(false)
+          // Mark account as claimed (password exists)
+          localStorage.setItem('ppe_is_claimed', 'true')
+          setLoginError('This account already has a password. Please use your existing password to login.')
+        } else {
+          setLoginError('Invalid email or password. Please check your credentials.')
+        }
+      } else {
+        setLoginError(error.message || (isClaiming ? 'Failed to claim account. Please try again.' : 'Login failed. Please check your credentials.'))
+      }
     } finally {
       setIsLoading(false)
     }
@@ -228,6 +405,7 @@ export default function ProfilePreview() {
   const handleLogout = () => {
     localStorage.removeItem('ppe_provider_auth_token')
     localStorage.removeItem('ppe_provider_email')
+    // Keep ppe_is_claimed so it shows "Welcome Back" next time
     setIsLoggedIn(false)
     setProfileData({
       name: "Joe's Garage",
@@ -240,10 +418,48 @@ export default function ProfilePreview() {
       avatarImage: null,
       email: '',
     })
+    
+    // Remove from=verify parameter from URL on logout
+    if (searchParams.get('from') === 'verify') {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('from')
+      navigate(`/profile-preview?${newParams.toString()}`, { replace: true })
+    }
   }
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
+    // Close sidebar on mobile when opening modal
+    setIsSidebarOpen(false)
+    
     if (!isLoggedIn) {
+      // Pre-fill email if available
+      if (profileData.email) {
+        setLoginForm({ ...loginForm, email: profileData.email })
+      } else {
+        // If no email in profile data, try to get from URL or prompt
+        const emailFromUrl = searchParams.get('email')
+        if (emailFromUrl) {
+          setLoginForm({ ...loginForm, email: emailFromUrl })
+          // Try to load profile to get email
+          try {
+            await loadProviderProfile(emailFromUrl)
+          } catch (e) {
+            console.error('Failed to load profile:', e)
+          }
+        }
+      }
+      
+      // Check if came from email verification (from=verify param)
+      const fromVerify = searchParams.get('from') === 'verify'
+      
+      if (fromVerify) {
+        // Came from email verification → show claim mode
+        setIsClaiming(true)
+      } else {
+        // Direct access or other links → show login mode
+        setIsClaiming(false)
+      }
+      
       setIsLoginModalOpen(true)
       return
     }
@@ -395,6 +611,8 @@ export default function ProfilePreview() {
   }
 
   const handleOpenShareModal = () => {
+    // Close sidebar on mobile when opening modal
+    setIsSidebarOpen(false)
     setIsShareModalOpen(true)
   }
 
@@ -504,9 +722,17 @@ export default function ProfilePreview() {
 
   const servicesList = profileData.services.split(',').map(s => s.trim()).filter(Boolean)
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
   return (
     <div className="profile-preview-page">
-      <aside className="sidebar">
+      <button className="mobile-toggle" onClick={toggleSidebar}>
+        <span className="material-icons-round">menu</span>
+      </button>
+      <div className={`overlay ${isSidebarOpen ? 'active' : ''}`} onClick={toggleSidebar}></div>
+      <aside className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="brand-container">
           <a href="/" className="brand">
             Pee<span className="color">peep</span>
@@ -566,7 +792,41 @@ export default function ProfilePreview() {
               </button>
             </div>
           ) : (
-            <div className="user-profile-card guest" onClick={() => setIsLoginModalOpen(true)}>
+            <div className="user-profile-card guest" onClick={async () => {
+              // Close sidebar on mobile
+              setIsSidebarOpen(false)
+              
+              // Get email from profile data or URL params
+              let emailToUse = profileData.email
+              if (!emailToUse) {
+                emailToUse = searchParams.get('email') || ''
+                if (emailToUse) {
+                  // Try to load profile
+                  try {
+                    await loadProviderProfile(emailToUse)
+                  } catch (e) {
+                    console.error('Failed to load profile:', e)
+                  }
+                }
+              }
+              
+              if (emailToUse) {
+                setLoginForm({ ...loginForm, email: emailToUse })
+              }
+              
+              // Check if came from email verification (from=verify param)
+              const fromVerify = searchParams.get('from') === 'verify'
+              
+              if (fromVerify) {
+                // Came from email verification → show claim mode
+                setIsClaiming(true)
+              } else {
+                // Direct access or other links → show login mode
+                setIsClaiming(false)
+              }
+              
+              setIsLoginModalOpen(true)
+            }}>
               <div className="user-avatar guest">
                 <span className="material-icons-round">person</span>
               </div>
@@ -646,16 +906,60 @@ export default function ProfilePreview() {
       </main>
 
       {/* Login Modal */}
-      <dialog ref={loginDialogRef} className="modal" onClose={() => setIsLoginModalOpen(false)}>
+      <dialog ref={loginDialogRef} className="modal" onClose={() => {
+        setIsLoginModalOpen(false)
+        setLoginError('')
+        setIsClaiming(false)
+      }}>
           <div className="modal-header">
-            <h3 className="modal-title">{t('modal_login_title')}</h3>
-            <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setIsLoginModalOpen(false)}>close</span>
+            <h3 className="modal-title">{isClaiming ? 'Secure Access' : 'Welcome Back'}</h3>
+            <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => {
+              setIsLoginModalOpen(false)
+              setLoginError('')
+              setIsClaiming(false)
+            }}>close</span>
           </div>
           <form onSubmit={handleLogin}>
             <div className="modal-body">
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-                {t('modal_login_desc')}
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                {isClaiming 
+                  ? 'Create a password to claim this Verified Shop Profile.'
+                  : 'Enter your password to access your shop dashboard.'}
               </p>
+              
+              <div className="social-grid">
+                <button
+                  type="button"
+                  className="btn-social"
+                  onClick={handleGoogleSignIn}
+                  disabled={isGoogleLoading || isLoading}
+                  style={{
+                    opacity: (isGoogleLoading || isLoading) ? 0.6 : 1,
+                    cursor: (isGoogleLoading || isLoading) ? 'wait' : 'pointer'
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  {isGoogleLoading ? 'Loading...' : 'Google'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-social"
+                  style={{ background: '#111827', color: 'white', borderColor: '#111827' }}
+                  onClick={() => alert('Apple Sign-In - Coming Soon')}
+                >
+                  <svg viewBox="0 0 384 512" fill="white" width="16" height="16">
+                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 52.3-11.4 69.5-34.3z"/>
+                  </svg>
+                  Apple
+                </button>
+              </div>
+              
+              <div className="auth-divider">Or continue with email</div>
               
               {loginError && (
                 <div style={{ 
@@ -671,26 +975,33 @@ export default function ProfilePreview() {
               )}
 
               <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={loginForm.email}
-                onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                placeholder="provider@peepeep.com"
-                required
-                disabled={isLoading}
-              />
+              <div className="input-group-icon">
+                <input
+                  type="email"
+                  className="form-control"
+                  value={loginForm.email || profileData.email}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  placeholder="provider@peepeep.com"
+                  required
+                  disabled={isLoading}
+                />
+                <span className="material-icons-round">email</span>
+              </div>
               
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-              />
+              <label className="form-label">{isClaiming ? 'Create Password' : 'Password'}</label>
+              <div className="input-group-icon">
+                <input
+                  type="password"
+                  className="form-control"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  placeholder="••••••••"
+                  required
+                  disabled={isLoading}
+                  minLength={isClaiming ? 8 : undefined}
+                />
+                <span className="material-icons-round">lock</span>
+              </div>
               
               <button
                 type="submit"
@@ -701,11 +1012,11 @@ export default function ProfilePreview() {
                 {isLoading ? (
                   <>
                     <span className="material-icons-round" style={{ animation: 'spin 1s linear infinite' }}>sync</span>
-                    {t('generating')}
+                    {isClaiming ? 'Claiming...' : 'Logging in...'}
                   </>
                 ) : (
                   <>
-                    <span className="material-icons-round">lock_open</span> {t('btn_edit_profile')}
+                    <span className="material-icons-round">{isClaiming ? 'shield' : 'lock_open'}</span> {isClaiming ? 'Claim & Login' : 'Login'}
                   </>
                 )}
               </button>

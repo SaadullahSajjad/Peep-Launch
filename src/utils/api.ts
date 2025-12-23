@@ -19,7 +19,7 @@ export interface ProviderSignupData {
   email: string
   business_name: string
   full_name: string
-  password: string
+  password?: string // Optional - can be set later in ProfilePreview
   language?: 'en' | 'fr'
 }
 
@@ -37,6 +37,7 @@ export interface ProviderWizardData {
   turnaround?: string
   banner_url?: string
   logo_url?: string
+  password?: string
 }
 
 export interface ProviderSignup {
@@ -58,6 +59,7 @@ export interface ProviderSignup {
   logo_url?: string
   status: string
   language?: string
+  email_verified?: boolean
   created_at: string
   updated_at: string
 }
@@ -158,6 +160,16 @@ class ApiService {
     }>('/provider-signups/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    })
+  }
+
+  async loginProviderWithGoogle(credential: string) {
+    return this.request<{
+      provider: any
+      token: string
+    }>('/provider-signups/login/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential }),
     })
   }
 

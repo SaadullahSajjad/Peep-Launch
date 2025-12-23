@@ -46,15 +46,38 @@ export default function LandingPage() {
   const [isWizardOpen, setIsWizardOpen] = useState(false)
   const [storedBizName, setStoredBizName] = useState('')
   const [storedProviderEmail, setStoredProviderEmail] = useState('')
-  const proSuccessDialogRef = useRef<HTMLDialogElement>(null)
 
   // Loading states
   const [isProcessing, setIsProcessing] = useState(false)
+  const [duplicateEmailError, setDuplicateEmailError] = useState(false)
+  const [countdown, setCountdown] = useState(5)
+  const [statusUrl, setStatusUrl] = useState<string | null>(null)
+  
+  // Modal refs
+  const proSuccessDialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
     setStoredLanguage(language)
     document.documentElement.lang = language
   }, [language])
+
+  // Countdown timer for auto-navigation
+  useEffect(() => {
+    if (currentStep === 3 && statusUrl && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            navigate(statusUrl)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      return () => clearInterval(timer)
+    }
+  }, [currentStep, statusUrl, countdown, navigate])
 
   // Track referral click when page loads with referral code (only once)
   const hasTrackedRef = useRef(false)
@@ -69,16 +92,6 @@ export default function LandingPage() {
     }
   }, [referralCodeFromUrl])
 
-  useEffect(() => {
-    const dialog = proSuccessDialogRef.current
-    if (!dialog) return
-
-    if (isProSuccessOpen) {
-      dialog.showModal()
-    } else {
-      dialog.close()
-    }
-  }, [isProSuccessOpen])
 
   const toggleLanguage = () => {
     const newLang = language === 'en' ? 'fr' : 'en'
@@ -93,10 +106,11 @@ export default function LandingPage() {
     e.preventDefault()
 
     if (localStorage.getItem('ppe_joined_email') === email) {
-      alert(t('msg_duplicate'))
+      setDuplicateEmailError(true)
       return
     }
 
+    setDuplicateEmailError(false)
     setIsProcessing(true)
     setTimeout(() => {
       setCurrentStep(2)
@@ -138,11 +152,19 @@ export default function LandingPage() {
       localStorage.setItem('ppe_joined_email', email)
       setSavedVehicle({ year: carYear, model: fullCarName })
 
+      // Always show success step first
+      setCurrentStep(3)
+      updateProgress(3)
+      
+      // Store status URL for navigation after countdown and reset countdown
       if (result.status_url) {
-        navigate(result.status_url.replace('/status.html', '/status'))
+        const url = result.status_url.replace('/status.html', '/status')
+        setStatusUrl(url)
+        setCountdown(5)
       } else {
-        setCurrentStep(3)
-        updateProgress(3)
+        // No status URL, reset countdown
+        setStatusUrl(null)
+        setCountdown(5)
       }
     } catch (error) {
       console.error('Failed to signup:', error)
@@ -156,6 +178,9 @@ export default function LandingPage() {
     setSavedVehicle(null)
     setCurrentStep(3)
     updateProgress(3)
+    // Reset countdown if skipping
+    setCountdown(5)
+    setStatusUrl(null)
   }
 
   const updateModels = () => {
@@ -172,9 +197,22 @@ export default function LandingPage() {
   }
 
   const openProWizard = () => {
+    proSuccessDialogRef.current?.close()
     setIsProSuccessOpen(false)
     setIsWizardOpen(true)
   }
+
+  // Handle Pro Success modal
+  useEffect(() => {
+    const dialog = proSuccessDialogRef.current
+    if (!dialog) return
+
+    if (isProSuccessOpen) {
+      dialog.showModal()
+    } else {
+      dialog.close()
+    }
+  }, [isProSuccessOpen])
 
   const carMakes = getCarMakes()
   const carModels = carMake ? getCarModels(carMake) : []
@@ -251,7 +289,10 @@ export default function LandingPage() {
                       type="email"
                       id="email-input"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        setDuplicateEmailError(false)
+                      }}
                       placeholder={t('placeholder_email')}
                       required
                     />
@@ -261,7 +302,7 @@ export default function LandingPage() {
                       id="email-btn"
                       disabled={isProcessing}
                     >
-                      {isProcessing ? t('btn_processing') : t('btn_access')}
+                      {duplicateEmailError ? t('msg_duplicate') : isProcessing ? t('btn_processing') : t('btn_access')}
                     </button>
                   </div>
                   <div
@@ -432,7 +473,7 @@ export default function LandingPage() {
                         fontSize: '1.4rem',
                         display: 'block',
                         marginBottom: '0.5rem',
-                        color: 'var(--text-main)',
+                        color: 'black',
                       }}
                     >
                       {t('success_title')}
@@ -449,10 +490,23 @@ export default function LandingPage() {
                         ? `${t('msg_custom_success')} ${savedVehicle.year} ${savedVehicle.model}.`
                         : t('success_msg_default')}
                     </span>
+                    {statusUrl && countdown > 0 && (
+                      <div
+                        style={{
+                          marginTop: '1rem',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-muted)',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Redirecting in {countdown} second{countdown !== 1 ? 's' : ''}...
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             )}
+
           </div>
 
           <div className="preview-container">
@@ -670,113 +724,6 @@ export default function LandingPage() {
         setStoredProviderEmail={setStoredProviderEmail}
       />
 
-      <dialog
-        ref={proSuccessDialogRef}
-        className="modal"
-        id="modal-pro-success"
-        style={{
-          backgroundColor: 'var(--pro-bg)',
-          color: 'var(--pro-text)',
-          border: '1px solid #334155',
-          textAlign: 'center',
-          maxWidth: '450px',
-          width: '95%',
-          margin: 'auto',
-        }}
-      >
-          <div
-            className="modal-body"
-            style={{ padding: '2.5rem 2rem', backgroundColor: '#0F172A', color: 'white' }}
-          >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                background: 'rgba(245, 158, 11, 0.1)',
-                color: '#F59E0B',
-                borderRadius: '50%',
-                display: 'grid',
-                placeItems: 'center',
-                margin: '0 auto 1.5rem auto',
-                fontSize: '2rem',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
-              }}
-            >
-              <span className="material-icons-round">rocket_launch</span>
-            </div>
-            <h2
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                marginBottom: '0.5rem',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              {t('success_pro_title')}
-            </h2>
-            <p
-              style={{
-                color: '#94A3B8',
-                fontSize: '0.95rem',
-                lineHeight: 1.5,
-              }}
-            >
-              {t('success_pro_desc')}
-            </p>
-
-            <div
-              style={{
-                background: '#1E293B',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                marginTop: '1.5rem',
-                border: '1px solid #334155',
-                textAlign: 'left',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 700,
-                  color: '#F59E0B',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                {t('nba_title')}
-              </div>
-              <p
-                style={{
-                  color: '#E2E8F0',
-                  fontSize: '0.9rem',
-                  marginBottom: '1rem',
-                  lineHeight: 1.5,
-                }}
-              >
-                {t('nba_desc')}
-              </p>
-              <button
-                className="btn btn-primary"
-                style={{ width: '100%', color: '#0F172A', fontWeight: 800 }}
-                onClick={openProWizard}
-              >
-                {t('nba_btn')}
-              </button>
-            </div>
-
-            <button
-              className="btn btn-ghost"
-              style={{ width: '100%', marginTop: '1rem', color: '#94A3B8' }}
-              onClick={() => {
-                proSuccessDialogRef.current?.close()
-                setIsProSuccessOpen(false)
-              }}
-            >
-              {t('btn_close')}
-            </button>
-          </div>
-        </dialog>
 
       <ProWizard
         isOpen={isWizardOpen}
@@ -785,6 +732,107 @@ export default function LandingPage() {
         businessName={storedBizName}
         email={storedProviderEmail}
       />
+
+      {/* Pro Success Modal */}
+      <dialog ref={proSuccessDialogRef} className="modal" id="modal-pro-success">
+        <div
+          className="modal-body"
+          style={{
+            padding: '2.5rem 2rem',
+            backgroundColor: '#0F172A',
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              background: 'rgba(245, 158, 11, 0.1)',
+              color: '#F59E0B',
+              borderRadius: '50%',
+              display: 'grid',
+              placeItems: 'center',
+              margin: '0 auto 1.5rem auto',
+              fontSize: '2rem',
+              border: '1px solid rgba(245, 158, 11, 0.2)',
+            }}
+          >
+            <span className="material-icons-round">rocket_launch</span>
+          </div>
+          <h2
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              marginBottom: '0.5rem',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
+            {t('success_pro_title')}
+          </h2>
+          <p
+            style={{
+              color: '#94A3B8',
+              fontSize: '0.95rem',
+              lineHeight: 1.5,
+            }}
+          >
+            {t('success_pro_desc')}
+          </p>
+
+          <div
+            style={{
+              background: '#1E293B',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              marginTop: '1.5rem',
+              border: '1px solid #334155',
+              textAlign: 'left',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                color: '#F59E0B',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                marginBottom: '0.5rem',
+              }}
+            >
+              {t('nba_title')}
+            </div>
+            <p
+              style={{
+                color: '#E2E8F0',
+                fontSize: '0.9rem',
+                marginBottom: '1rem',
+                lineHeight: 1.5,
+              }}
+            >
+              {t('nba_desc')}
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', color: '#0F172A', fontWeight: 800 }}
+              onClick={openProWizard}
+            >
+              {t('nba_btn')}
+            </button>
+          </div>
+
+          <button
+            className="btn btn-ghost"
+            style={{ width: '100%', marginTop: '1rem', color: '#94A3B8' }}
+            onClick={() => {
+              proSuccessDialogRef.current?.close()
+              setIsProSuccessOpen(false)
+            }}
+          >
+            {t('btn_close')}
+          </button>
+        </div>
+      </dialog>
     </div>
   )
 }
