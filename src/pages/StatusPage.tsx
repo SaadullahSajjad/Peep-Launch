@@ -105,7 +105,7 @@ export default function StatusPage() {
     <div className="status-page">
       <div className="status-card">
         <div className="card-header">
-          <div className="brand">
+          <div className="brandstatus">
             Pee<span>peep</span>
           </div>
           <br />

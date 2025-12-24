@@ -107,3 +107,146 @@
   }
 }
 
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 900px) {
+  .verify-email-page {
+    padding: 1.5rem;
+  }
+
+  .verify-container {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .verify-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .verify-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .verify-container p {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .verify-email-page {
+    padding: 1rem;
+  }
+
+  .verify-container {
+    padding: 2rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  .verify-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .verify-container h1 {
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .verify-container p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .verify-container > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .verify-container > div:last-child .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .verify-email-page {
+    padding: 1rem;
+  }
+
+  .verify-container {
+    padding: 2rem 1.25rem;
+    border-radius: 12px;
+  }
+
+  .verify-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .verify-container h1 {
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .verify-container p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .verify-container > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .verify-container > div:last-child .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .verify-email-page {
+    padding: 0.75rem;
+  }
+
+  .verify-container {
+    padding: 1.75rem 1rem;
+  }
+
+  .verify-icon {
+    width: 55px;
+    height: 55px;
+    font-size: 1.75rem;
+  }
+
+  .verify-container h1 {
+    font-size: 1.25rem;
+  }
+
+  .verify-container p {
+    font-size: 0.85rem;
+  }
+}
+

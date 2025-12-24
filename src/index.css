@@ -61,6 +61,30 @@ button, select, input, textarea {
   width: 100%;
 }
 
+@media (max-width: 375px) {
+  .container {
+    padding: 0 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+}
+
 .flex {
   display: flex;
 }
