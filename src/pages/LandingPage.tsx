@@ -168,7 +168,8 @@ export default function LandingPage() {
       }
     } catch (error) {
       console.error('Failed to signup:', error)
-      alert(t('btn_error')+ error)
+      const errorMessage = error instanceof Error ? error.message : String(error) || 'An unknown error occurred'
+      alert(`${t('btn_error')}: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }

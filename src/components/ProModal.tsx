@@ -110,7 +110,8 @@ export default function ProModal({
       setEmail('')
     } catch (error) {
       console.error('Failed to submit provider registration:', error)
-      alert('Error')
+      const errorMessage = error instanceof Error ? error.message : String(error) || 'An unknown error occurred'
+      alert(`Error: ${errorMessage}`)
     } finally {
       setIsSubmitting(false)
     }
