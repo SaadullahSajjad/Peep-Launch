@@ -168,7 +168,7 @@ export default function LandingPage() {
       }
     } catch (error) {
       console.error('Failed to signup:', error)
-      alert(t('btn_error'))
+      alert(t('btn_error')+ error)
     } finally {
       setIsProcessing(false)
     }
