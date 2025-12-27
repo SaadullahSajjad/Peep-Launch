@@ -248,7 +248,7 @@ export default function LandingPage() {
               {t('nav_contact')}
             </button>
 
-            <button className="lang-toggle" id="lang-btn" onClick={toggleLanguage}>
+            <button className="lang-discreet" id="lang-btn" onClick={toggleLanguage}>
               <span className="material-icons-round" style={{ fontSize: '16px' }}>
                 language
               </span>

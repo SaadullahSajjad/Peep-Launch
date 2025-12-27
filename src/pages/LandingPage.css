@@ -24,6 +24,27 @@ header .brandLanding span,
   color: var(--primary);
 }
 
+/* --- DISCREET LANGUAGE TOGGLE (UI STRATEGY) --- */
+.lang-discreet {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lang-discreet:hover {
+  color: var(--text-main);
+  opacity: 1;
+}
+
 /* --- HERO --- */
 .hero {
   padding: 4rem 0 6rem 0;
@@ -424,7 +445,7 @@ select.vehicle-input:disabled {
     padding: 0.5rem 0.75rem;
   }
 
-  .lang-toggle {
+  .lang-discreet {
     font-size: 0.85rem;
     padding: 0.4rem 0.75rem;
   }
@@ -533,12 +554,12 @@ select.vehicle-input:disabled {
     padding: 0.4rem 0.6rem;
   }
 
-  .lang-toggle {
+  .lang-discreet {
     font-size: 0.75rem;
     padding: 0.35rem 0.6rem;
   }
 
-  .lang-toggle span:last-child {
+  .lang-discreet span:last-child {
     display: none;
   }
 
@@ -647,7 +668,7 @@ select.vehicle-input:disabled {
     margin-right: 0.75rem;
   }
 
-  .lang-toggle {
+  .lang-discreet {
     font-size: 0.7rem;
     padding: 0.3rem 0.5rem;
   }
