@@ -436,7 +436,7 @@ select.vehicle-input:disabled {
   }
 
   header > div {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
   }
 
@@ -546,6 +546,7 @@ select.vehicle-input:disabled {
   }
 
   header > div {
+    flex-wrap: nowrap;
     gap: 0.25rem;
   }
 
@@ -557,10 +558,6 @@ select.vehicle-input:disabled {
   .lang-discreet {
     font-size: 0.75rem;
     padding: 0.35rem 0.6rem;
-  }
-
-  .lang-discreet span:last-child {
-    display: none;
   }
 
   .hero {
@@ -660,6 +657,10 @@ select.vehicle-input:disabled {
 
   .brandLanding {
     font-size: 1.1rem;
+  }
+
+  header > div {
+    flex-wrap: nowrap;
   }
 
   .btn-text {
