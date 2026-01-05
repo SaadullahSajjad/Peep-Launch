@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { apiService } from '../utils/api'
+import { useToast } from '../contexts/ToastContext'
 import './ProWizard.css'
 
 interface ProWizardProps {
@@ -17,6 +18,7 @@ export default function ProWizard({
   businessName,
   email,
 }: ProWizardProps) {
+  const { showToast } = useToast()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [currentStep, setCurrentStep] = useState(1)
   
@@ -98,7 +100,7 @@ export default function ProWizard({
 
   const handleSubmit = async () => {
     if (!email) {
-      alert('Email is required')
+      showToast('Email is required', 'error')
       return
     }
 
@@ -116,7 +118,7 @@ export default function ProWizard({
           licenseFileName = uploadResult.fileName
         } catch (uploadError) {
           console.error('Failed to upload license file:', uploadError)
-          alert('Failed to upload license file. Please try again.')
+          showToast('Failed to upload license file. Please try again.', 'error')
           setIsSubmitting(false)
           return
         }
@@ -134,11 +136,11 @@ export default function ProWizard({
 
       await apiService.updateProviderSignup(wizardData)
       
-      alert('Profile Completed! We will review your submission and get back to you soon.')
+      showToast('Profile Completed! We will review your submission and get back to you soon.', 'success')
       handleClose()
     } catch (error) {
       console.error('Failed to submit provider signup:', error)
-      alert('Error submitting profile. Please try again.')
+      showToast('Error submitting profile. Please try again.', 'error')
     } finally {
       setIsSubmitting(false)
     }

@@ -1,6 +1,7 @@
 import { useState, FormEvent, useEffect, useRef } from 'react'
 import { apiService } from '../utils/api'
 import { useTranslations } from '../utils/i18n'
+import { useToast } from '../contexts/ToastContext'
 import './ContactModal.css'
 
 interface ContactModalProps {
@@ -15,6 +16,7 @@ export default function ContactModal({
   language,
 }: ContactModalProps) {
   const t = useTranslations(language)
+  const { showToast } = useToast()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [subject, setSubject] = useState('General')
   const [email, setEmail] = useState('')
@@ -64,7 +66,7 @@ export default function ContactModal({
       setMessage('')
     } catch (error) {
       console.error('Failed to submit contact form:', error)
-      alert(t('btn_error'))
+      showToast(t('btn_error'), 'error')
     } finally {
       setIsSubmitting(false)
     }

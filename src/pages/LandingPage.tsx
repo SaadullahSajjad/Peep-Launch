@@ -8,6 +8,7 @@ import {
   type Language,
 } from '../utils/i18n'
 import { getCarMakes, getCarModels, generateYears } from '../data/carDatabase'
+import { useToast } from '../contexts/ToastContext'
 import ContactModal from '../components/ContactModal'
 import ProModal from '../components/ProModal'
 import ProWizard from '../components/ProWizard'
@@ -19,6 +20,7 @@ export default function LandingPage() {
   const [searchParams] = useSearchParams()
   const [language, setLanguage] = useState<Language>(getStoredLanguage())
   const t = useTranslations(language)
+  const { showToast } = useToast()
   
   // Get referral code from URL parameter
   const referralCodeFromUrl = searchParams.get('ref') || null
@@ -102,6 +104,31 @@ export default function LandingPage() {
     setCurrentStep(step)
   }
 
+  // Step 1: Vehicle selection - just moves to step 2 (doesn't check availability)
+  const handleVehicleCheck = (e: FormEvent) => {
+    e.preventDefault()
+
+    let finalModel = carModel
+    if (showModelOther && carModelOther.trim() !== '') {
+      finalModel = carModelOther.trim()
+    }
+
+    if (!carYear || !carMake || !finalModel) {
+      showToast(
+        language === 'en'
+          ? 'Please select all vehicle details.'
+          : 'Veuillez sélectionner tous les détails du véhicule.',
+        'error'
+      )
+      return
+    }
+
+    // Just move to step 2 - no API call
+    setCurrentStep(2)
+    updateProgress(2)
+  }
+
+  // Step 2: Email submission - does the actual API call
   const handleEmailSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
@@ -112,44 +139,30 @@ export default function LandingPage() {
 
     setDuplicateEmailError(false)
     setIsProcessing(true)
-    setTimeout(() => {
-      setCurrentStep(2)
-      updateProgress(2)
-      setIsProcessing(false)
-    }, 600)
-  }
-
-  const handleVehicleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    let finalModel = carModel
-    if (showModelOther && carModelOther.trim() !== '') {
-      finalModel = carModelOther.trim()
-    }
-
-    if (!carYear || !carMake || !finalModel) {
-      alert(
-        language === 'en'
-          ? 'Please select all vehicle details.'
-          : 'Veuillez sélectionner tous les détails du véhicule.'
-      )
-      return
-    }
-
-    setIsProcessing(true)
 
     try {
+      let finalModel = carModel
+      if (showModelOther && carModelOther.trim() !== '') {
+        finalModel = carModelOther.trim()
+      }
+
       const fullCarName = `${carMake} ${finalModel}`
       const result = await apiService.signupWaitlist({
         email,
-        name,
-        vehicle_year: parseInt(carYear),
+        name: email.split('@')[0], // Use email prefix as name if not provided
+        vehicle_year: parseInt(carYear, 10),
         vehicle_model: fullCarName,
         referral_code: referralCodeFromUrl || undefined,
         language,
       })
 
-      localStorage.setItem('ppe_joined_email', email)
+      // ✅ Safe storage (never breaks signup)
+      try {
+        localStorage.setItem('ppe_joined_email', email)
+      } catch (_) {
+        console.warn('localStorage blocked (Safari private)')
+      }
+
       setSavedVehicle({ year: carYear, model: fullCarName })
 
       // Always show success step first
@@ -169,19 +182,16 @@ export default function LandingPage() {
     } catch (error) {
       console.error('Failed to signup:', error)
       const errorMessage = error instanceof Error ? error.message : String(error) || 'An unknown error occurred'
-      alert(`${t('btn_error')}: ${errorMessage}`)
+      showToast(`${t('btn_error')}: ${errorMessage}`, 'error')
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const skipStep = () => {
-    setSavedVehicle(null)
-    setCurrentStep(3)
-    updateProgress(3)
-    // Reset countdown if skipping
-    setCountdown(5)
-    setStatusUrl(null)
+  const goBack = () => {
+    setCurrentStep(1)
+    updateProgress(1)
+    setDuplicateEmailError(false)
   }
 
   const updateModels = () => {
@@ -240,18 +250,15 @@ export default function LandingPage() {
             >
               {t('nav_pro')}
             </button>
-            <button
+            {/* <button
               type="button"
               className="btn-text"
               onClick={() => setIsContactOpen(true)}
             >
               {t('nav_contact')}
-            </button>
+            </button> */}
 
             <button className="lang-discreet" id="lang-btn" onClick={toggleLanguage}>
-              <span className="material-icons-round" style={{ fontSize: '16px' }}>
-                language
-              </span>
               <span id="lang-text">{t('btn_lang_switch')}</span>
             </button>
           </div>
@@ -264,7 +271,15 @@ export default function LandingPage() {
             <span className="h1-highlight">{t('hero_title_2')}</span>
           </h1>
 
-          <p className="subtitle">{t('hero_subtitle')}</p>
+          <p className="subtitle">
+            {t('hero_subtitle').split('. ').map((line, index, array) => (
+              <span key={index}>
+                {line}
+                {index < array.length - 1 ? '. ' : ''}
+                {index === 0 && <br />}
+              </span>
+            ))}
+          </p>
 
           <div className="form-container">
             <div className="progress-steps">
@@ -284,88 +299,26 @@ export default function LandingPage() {
 
             {currentStep === 1 && (
               <div className="step active" id="step-1">
-                <form onSubmit={handleEmailSubmit}>
-                  <div className="input-group">
-                    <input
-                      type="email"
-                      id="email-input"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value)
-                        setDuplicateEmailError(false)
-                      }}
-                      placeholder={t('placeholder_email')}
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      id="email-btn"
-                      disabled={isProcessing}
-                    >
-                      {duplicateEmailError ? t('msg_duplicate') : isProcessing ? t('btn_processing') : t('btn_access')}
-                    </button>
-                  </div>
-                  <div
-                    style={{
-                      marginTop: '1rem',
-                      fontSize: '0.8rem',
-                      color: 'var(--text-muted)',
-                      textAlign: 'center',
-                    }}
-                  >
+                <div className="card-form" style={{ textAlign: 'left' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                      {t('step1_header')}
+                    </h3>
                     <span
-                      className="material-icons-round"
                       style={{
-                        fontSize: '12px',
-                        verticalAlign: 'middle',
-                        color: '#10B981',
+                        fontSize: '0.75rem',
+                        background: '#FEF2F2',
+                        color: '#EF4444',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontWeight: 700,
                       }}
                     >
-                      lock
-                    </span>{' '}
-                    <span>{t('privacy_text')}</span>
+                      {t('badge_limited')}
+                    </span>
                   </div>
-                </form>
-              </div>
-            )}
 
-            {currentStep === 2 && (
-              <div className="step active" id="step-2">
-                <div className="card-form">
-                  <h3
-                    style={{
-                      fontSize: '1.25rem',
-                      fontWeight: 700,
-                      marginBottom: '0.5rem',
-                      color: 'var(--text-main)',
-                    }}
-                  >
-                    {t('step2_title')}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: '0.9rem',
-                      color: 'var(--text-muted)',
-                      marginBottom: '1.5rem',
-                    }}
-                  >
-                    {t('step2_desc')}
-                  </p>
-
-                  <form onSubmit={handleVehicleSubmit}>
-                    <label className="form-label-left">{t('label_name')}</label>
-                    <input
-                      type="text"
-                      id="user-name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="vehicle-input"
-                      placeholder={t('placeholder_name')}
-                      style={{ marginBottom: '1rem' }}
-                      required
-                    />
-
+                  <form onSubmit={handleVehicleCheck}>
                     <label className="form-label-left">{t('label_vehicle')}</label>
                     <div
                       style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}
@@ -410,7 +363,7 @@ export default function LandingPage() {
                         placeholder={
                           carMake
                             ? 'Model'
-                            : 'Model (Select Make First)'
+                            : 'Model'
                         }
                         disabled={!carMake || carMake === 'Other'}
                         required
@@ -419,7 +372,7 @@ export default function LandingPage() {
                           setCarModel('Other')
                           checkOtherModel('Other')
                         }}
-                        style={{ marginBottom: '0.5rem'}}
+                        style={{ marginBottom: '1.5rem' }}
                       />
                     ) : (
                       <input
@@ -429,7 +382,7 @@ export default function LandingPage() {
                         value={carModelOther}
                         onChange={(e) => setCarModelOther(e.target.value)}
                         placeholder="Enter Model Name manually"
-                        style={{ marginBottom: '0.5rem' }}
+                        style={{ marginBottom: '1.5rem' }}
                         required
                       />
                     )}
@@ -437,18 +390,120 @@ export default function LandingPage() {
                     <button
                       type="submit"
                       className="btn btn-primary"
-                      style={{ width: '100%', marginTop: '1rem' }}
-                      id="vehicle-btn"
+                      style={{ width: '100%' }}
+                      id="check-btn"
+                    >
+                      {t('btn_check')}
+                    </button>
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        marginTop: '1rem',
+                        fontSize: '0.8rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      {t('txt_rollout')}
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="step active" id="step-2">
+                <div className="card-form" style={{ textAlign: 'center' }}>
+                  <div
+                    style={{
+                      background: '#EFF6FF',
+                      color: 'var(--primary)',
+                      display: 'inline-block',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <span className="material-icons-round" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>
+                      check_circle
+                    </span>
+                    <span>
+                      {language === 'en'
+                        ? `Great news! We support ${carMake}.`
+                        : `Bonne nouvelle ! Nous supportons ${carMake}.`}
+                    </span>
+                  </div>
+
+                  <h3
+                    style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 700,
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    {t('step2_title')}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: '0.9rem',
+                      color: 'var(--text-muted)',
+                      marginBottom: '1.5rem',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: t('step2_desc') }}
+                  />
+
+                  <form onSubmit={handleEmailSubmit}>
+                    <input
+                      type="email"
+                      id="email-input"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        setDuplicateEmailError(false)
+                      }}
+                      className="vehicle-input"
+                      placeholder={t('placeholder_email')}
+                      style={{ marginBottom: '0.5rem' }}
+                      required
+                    />
+
+                    <div
+                      style={{
+                        fontSize: '0.8rem',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        marginBottom: '1rem',
+                      }}
+                    >
+                      <span
+                        className="material-icons-round"
+                        style={{ fontSize: '12px', color: '#10B981' }}
+                      >
+                        lock
+                      </span>
+                      <span>{t('privacy_text')}</span>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ width: '100%', marginBottom: '0.5rem' }}
+                      id="final-btn"
                       disabled={isProcessing}
                     >
-                      {isProcessing ? t('btn_sending') : t('btn_complete')}
+                      {duplicateEmailError ? t('msg_duplicate') : isProcessing ? t('btn_processing') : t('btn_join')}
                     </button>
                     <button
                       type="button"
                       className="btn-ghost"
-                      onClick={skipStep}
+                      style={{ width: '100%' }}
+                      onClick={goBack}
                     >
-                      {t('btn_skip')}
+                      {t('btn_back')}
                     </button>
                   </form>
                 </div>
@@ -466,7 +521,7 @@ export default function LandingPage() {
                       color: '#10B981',
                     }}
                   >
-                    check_circle
+                    celebration
                   </span>
                   <div>
                     <strong
@@ -474,23 +529,35 @@ export default function LandingPage() {
                         fontSize: '1.4rem',
                         display: 'block',
                         marginBottom: '0.5rem',
-                        color: 'black',
                       }}
                     >
                       {t('success_title')}
                     </strong>
-                    <span
+                    <p
                       style={{
                         fontSize: '0.95rem',
-                        color: 'var(--text-muted)',
+                        color: 'var(--text-main)',
                         lineHeight: 1.5,
                       }}
-                      id="final-msg"
                     >
-                      {savedVehicle
-                        ? `${t('msg_custom_success')} ${savedVehicle.year} ${savedVehicle.model}.`
-                        : t('success_msg_default')}
-                    </span>
+                      {savedVehicle ? (
+                        <>
+                          {t('success_msg')} <strong>{savedVehicle.year} {savedVehicle.model}</strong>.
+                        </>
+                      ) : (
+                        t('success_msg_default')
+                      )}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: '0.85rem',
+                        opacity: 0.8,
+                        marginTop: '0.5rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      {t('success_sub')}
+                    </p>
                     {statusUrl && countdown > 0 && (
                       <div
                         style={{
@@ -511,168 +578,104 @@ export default function LandingPage() {
           </div>
 
           <div className="preview-container">
+            <div
+              style={{
+                textAlign: 'center',
+                marginBottom: '1rem',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                fontSize: '0.9rem',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}
+            >
+              {t('sneak_peek')}
+            </div>
             <div className="dashboard-mockup">
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: '200px',
-                  borderRight: '1px solid var(--border)',
-                  padding: '1.5rem',
-                  background: 'var(--bg-subtle)',
-                }}
-              >
-                <div
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    background: 'var(--primary)',
-                    borderRadius: '8px',
-                    marginBottom: '2rem',
-                  }}
-                ></div>
-                <div
-                  style={{
-                    height: '10px',
-                    width: '80%',
-                    background: '#E5E7EB',
-                    marginBottom: '1rem',
-                    borderRadius: '4px',
-                  }}
-                ></div>
-                <div
-                  style={{
-                    height: '10px',
-                    width: '60%',
-                    background: '#E5E7EB',
-                    marginBottom: '1rem',
-                    borderRadius: '4px',
-                  }}
-                ></div>
-                <div
-                  style={{
-                    height: '10px',
-                    width: '70%',
-                    background: '#E5E7EB',
-                    marginBottom: '1rem',
-                    borderRadius: '4px',
-                  }}
-                ></div>
+              <div className="mock-overlay">
+                <div className="overlay-badge">{t('coming_soon')}</div>
               </div>
-              <div style={{ marginLeft: '200px' }}>
-                <div className="mock-header">
-                  <div>
-                    <div
-                      style={{
-                        fontSize: '1.5rem',
-                        fontWeight: 700,
-                        marginBottom: '5px',
-                      }}
-                    >
-                      {t('mock_dash')}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                      <span>{t('mock_welcome')}</span>, Patrick
-                    </div>
-                  </div>
+              <div className="mock-nav">
+                <div className="mock-dot"></div>
+                <div className="mock-dot"></div>
+                <div className="mock-dot"></div>
+              </div>
+              <div className="mock-body" style={{ filter: 'blur(1px)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                   <div
-                    className="btn btn-primary"
                     style={{
-                      padding: '0.5rem 1rem',
-                      fontSize: '0.8rem',
-                      borderRadius: '8px',
+                      width: '150px',
+                      height: '20px',
+                      background: 'var(--bg-subtle)',
+                      borderRadius: '4px',
                     }}
-                  >
-                    {t('mock_new_req')}
-                  </div>
-                </div>
-                <div className="mock-grid">
-                  <div className="mock-card active">
-                    <div
-                      className="flex justify-between"
-                      style={{ alignItems: 'center', marginBottom: '10px' }}
-                    >
-                      <div className="mock-icon">
-                        <span className="material-icons-round" style={{ fontSize: '1.2rem' }}>
-                          disc_full
-                        </span>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          color: '#EF4444',
-                          background: '#FEF2F2',
-                          padding: '2px 8px',
-                          borderRadius: '10px',
-                        }}
-                      >
-                        URGENT
-                      </span>
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
-                        {t('mock_brake')}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {t('mock_quotes')}
-                      </div>
-                    </div>
-                  </div>
+                  ></div>
                   <div
-                    className="mock-card active"
-                    style={{ borderColor: 'var(--border)', boxShadow: 'none' }}
-                  >
-                    <div
-                      className="flex justify-between"
-                      style={{ alignItems: 'center', marginBottom: '10px' }}
-                    >
-                      <div
-                        className="mock-icon"
-                        style={{
-                          color: 'var(--text-main)',
-                          background: 'var(--bg-body)',
-                        }}
-                      >
-                        <span className="material-icons-round" style={{ fontSize: '1.2rem' }}>
-                          oil_barrel
-                        </span>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          color: 'var(--primary)',
-                          background: '#EFF6FF',
-                          padding: '2px 8px',
-                          borderRadius: '10px',
-                        }}
-                      >
-                        {t('mock_due')}
-                      </span>
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
-                        {t('mock_oil')}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {t('mock_rec')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mock-card"></div>
+                    style={{
+                      width: '100px',
+                      height: '30px',
+                      background: 'var(--primary)',
+                      borderRadius: '6px',
+                      opacity: 0.2,
+                    }}
+                  ></div>
                 </div>
                 <div
                   style={{
-                    marginTop: '1.5rem',
-                    background: 'var(--bg-subtle)',
-                    borderRadius: '12px',
-                    height: '150px',
+                    width: '100%',
+                    height: '100px',
                     border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    marginTop: '1rem',
+                    padding: '1rem',
                   }}
-                ></div>
+                >
+                  <div
+                    style={{
+                      width: '60%',
+                      height: '15px',
+                      background: 'var(--bg-subtle)',
+                      borderRadius: '4px',
+                      marginBottom: '10px',
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      width: '40%',
+                      height: '15px',
+                      background: 'var(--bg-subtle)',
+                      borderRadius: '4px',
+                    }}
+                  ></div>
+                </div>
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    opacity: 0.6,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '60%',
+                      height: '15px',
+                      background: 'var(--bg-subtle)',
+                      borderRadius: '4px',
+                      marginBottom: '10px',
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      width: '40%',
+                      height: '15px',
+                      background: 'var(--bg-subtle)',
+                      borderRadius: '4px',
+                    }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
@@ -681,30 +684,37 @@ export default function LandingPage() {
 
       <section className="features">
         <div className="container">
+          <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {t('features_title')}
+          </h2>
           <div className="feature-grid">
             <div className="feature-item">
-              <div className="f-icon">
-                <span className="material-icons-round">request_quote</span>
-              </div>
+              <span className="material-icons-round f-icon">rocket_launch</span>
               <h3>{t('feat1_title')}</h3>
               <p>{t('feat1_desc')}</p>
             </div>
             <div className="feature-item">
-              <div className="f-icon">
-                <span className="material-icons-round">chat</span>
-              </div>
+              <span className="material-icons-round f-icon">monetization_on</span>
               <h3>{t('feat2_title')}</h3>
               <p>{t('feat2_desc')}</p>
             </div>
             <div className="feature-item">
-              <div className="f-icon">
-                <span className="material-icons-round">history</span>
-              </div>
+              <span className="material-icons-round f-icon">build_circle</span>
               <h3>{t('feat3_title')}</h3>
               <p>{t('feat3_desc')}</p>
             </div>
           </div>
-          <div className="footer-copyright">{t('copyright')}</div>
+          <div
+            style={{
+              marginTop: '2.5rem',
+              textAlign: 'center',
+              color: 'var(--text-muted)',
+              fontSize: '0.9rem',
+            }}
+          >
+            © 2025 Peepeep Inc.{' '}
+            <span style={{ opacity: 0.6 }}>{t('footer_tag')}</span>
+          </div>
         </div>
       </section>
 

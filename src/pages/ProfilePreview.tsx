@@ -8,6 +8,7 @@ import {
   useTranslations,
   type Language,
 } from '../utils/i18n'
+import { useToast } from '../contexts/ToastContext'
 import { initializeGoogleAuth, triggerGoogleSignIn, type GoogleUserInfo } from '../utils/googleOAuth'
 import './ProfilePreview.css'
 
@@ -26,6 +27,7 @@ export default function ProfilePreview() {
   const [providerId, setProviderId] = useState<string | null>(null)
   const badgePreviewRef = useRef<HTMLDivElement>(null)
   const t = useTranslations(language)
+  const { showToast } = useToast()
   
   // Modal refs
   const loginDialogRef = useRef<HTMLDialogElement>(null)
@@ -80,34 +82,31 @@ export default function ProfilePreview() {
     const providerEmail = localStorage.getItem('ppe_provider_email')
     setIsLoggedIn(!!token)
 
-    // Get email from URL params (from email verification link) or localStorage
-    const emailFromUrl = searchParams.get('email')
-    const emailToLoad = emailFromUrl || providerEmail
-
-    // Load profile data from backend if logged in or if we have email from URL
+    // Only load profile data from backend if logged in
     if (token && providerEmail) {
       loadProviderProfile(providerEmail)
-    } else if (emailToLoad) {
-      // Try to load profile even if not logged in (for first-time visitors from email)
-      loadProviderProfile(emailToLoad)
     } else {
-      // Load from localStorage as fallback
-      const savedData = localStorage.getItem('ppe_provider_data')
-      if (savedData) {
-        try {
-          const parsed = JSON.parse(savedData)
-          setProfileData(parsed)
-          setEditForm({
-            name: parsed.name || '',
-            location: parsed.location || '',
-            rate: parsed.rate || '',
-            turnaround: parsed.turnaround || '',
-            services: parsed.services || '',
-          })
-        } catch (e) {
-          console.error('Failed to parse saved data:', e)
-        }
-      }
+      // When not logged in, show dummy data only
+      // Reset to default dummy data
+      setProfileData({
+        name: "Joe's Garage",
+        location: "Montreal, QC",
+        rate: "$95/hr",
+        turnaround: "24h",
+        services: "Brakes, Diagnostics, Suspension, Oil Change",
+        initials: "JG",
+        bannerImage: null,
+        avatarImage: null,
+        email: '',
+      })
+      setEditForm({
+        name: "Joe's Garage",
+        location: "Montreal, QC",
+        rate: "$95/hr",
+        turnaround: "24h",
+        services: "Brakes, Diagnostics, Suspension, Oil Change",
+      })
+      setProviderId(null)
     }
   }, [searchParams])
 
@@ -486,7 +485,7 @@ export default function ProfilePreview() {
         })
       }
     } catch (error: any) {
-      alert(error.message || 'Failed to upload banner image')
+      showToast(error.message || 'Failed to upload banner image', 'error')
     } finally {
       setIsUploadingBanner(false)
     }
@@ -509,7 +508,7 @@ export default function ProfilePreview() {
         })
       }
     } catch (error: any) {
-      alert(error.message || 'Failed to upload logo image')
+      showToast(error.message || 'Failed to upload logo image', 'error')
     } finally {
       setIsUploadingLogo(false)
     }
@@ -545,7 +544,7 @@ export default function ProfilePreview() {
 
   const handleSaveProfile = async () => {
     if (!profileData.email) {
-      alert('Please log in to save your profile')
+      showToast('Please log in to save your profile', 'error')
       return
     }
 
@@ -602,9 +601,9 @@ export default function ProfilePreview() {
       setLogoPreview(null)
       
       setIsEditModalOpen(false)
-      alert('Profile updated successfully!')
+      showToast('Profile updated successfully!', 'success')
     } catch (error: any) {
-      alert(error.message || 'Failed to update profile. Please try again.')
+      showToast(error.message || 'Failed to update profile. Please try again.', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -637,7 +636,7 @@ export default function ProfilePreview() {
       setDownloadSuccess(true)
     } catch (error) {
       console.error('Failed to download badge:', error)
-      alert('Failed to download badge. Please try again.')
+      showToast('Failed to download badge. Please try again.', 'error')
     } finally {
       setIsDownloading(false)
     }
@@ -676,19 +675,19 @@ export default function ProfilePreview() {
               const blob = await (await fetch(dataUrl)).blob()
               const item = new ClipboardItem({ 'image/png': blob })
               await navigator.clipboard.write([item])
-              alert('Badge image copied to clipboard! You can now paste it in Instagram.')
+              showToast('Badge image copied to clipboard! You can now paste it in Instagram.', 'success')
             } else {
               // Fallback: download the image
               const link = document.createElement('a')
               link.download = 'Peepeep-Badge.png'
               link.href = dataUrl
               link.click()
-              alert('Badge downloaded! You can now upload it to Instagram.')
+              showToast('Badge downloaded! You can now upload it to Instagram.', 'success')
             }
           }
         } catch (error) {
           console.error('Failed to copy image:', error)
-          alert('Please download the badge first, then upload it to Instagram.')
+          showToast('Please download the badge first, then upload it to Instagram.', 'error')
         }
         break
         
@@ -696,7 +695,7 @@ export default function ProfilePreview() {
         // Copy profile URL to clipboard
         try {
           await navigator.clipboard.writeText(profileUrl)
-          alert(t('link_copied'))
+          showToast(t('link_copied'), 'success')
         } catch (error) {
           // Fallback for older browsers
           const textArea = document.createElement('textarea')
@@ -707,16 +706,16 @@ export default function ProfilePreview() {
           textArea.select()
           try {
             document.execCommand('copy')
-            alert('Profile link copied to clipboard!')
+            showToast('Profile link copied to clipboard!', 'success')
           } catch (err) {
-            alert('Failed to copy link. Please copy manually: ' + profileUrl)
+            showToast('Failed to copy link. Please copy manually: ' + profileUrl, 'error')
           }
           document.body.removeChild(textArea)
         }
         break
         
       default:
-        alert(`Sharing to ${platform}...`)
+        showToast(`Sharing to ${platform}...`, 'info')
     }
   }
 
@@ -746,34 +745,48 @@ export default function ProfilePreview() {
         <div className="control-group">
           <div className="control-label">{t('profile_status_title')}</div>
           <div className="action-card">
-            <div className="status-indicator">
-              <div className="pulse-dot"></div>
-              <span>{t('profile_status_live')}</span>
-            </div>
-            <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.5,marginBottom: 0 }}>
-              {t('profile_status_desc')}
-            </p>
+            {isLoggedIn ? (
+              <>
+                <div className="status-indicator live">
+                  <div className="pulse-dot"></div>
+                  <span>Live & Public</span>
+                </div>
+                <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                  Your shop is visible in the marketplace. Changes update in real-time.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="status-indicator draft">
+                  <div className="pulse-dot"></div>
+                  <span>Unpublished Draft</span>
+                </div>
+                <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.4 ,marginBottom:0}}>
+                  This profile is only visible to you. Claim it to go live in the marketplace.
+                </p>
+              </>
+            )}
           </div>
         </div>
 
         <div className="control-group">
-          <div className="control-label">{t('quick_actions')}</div>
-          <button className="btn btn-sidebar" onClick={handleOpenShareModal}>
-            <span className="material-icons-round">share</span>
-            <span>{t('btn_share_status')}</span>
-          </button>
-          <button className="btn btn-sidebar-outline" style={{ marginTop: '0.75rem' }} onClick={handleEdit}>
+          <div className="control-label">Manage Storefront</div>
+          <button className="btn btn-sidebar" onClick={handleEdit}>
             <span className="material-icons-round">edit</span>
-            <span>{t('btn_edit_profile')}</span>
+            <span>Edit Profile</span>
+          </button>
+          <button className="btn btn-sidebar-outline" style={{ marginTop: '0.75rem' }} onClick={handleOpenShareModal}>
+            <span className="material-icons-round">share</span>
+            <span>Share Verified Badge</span>
           </button>
         </div>
 
         <div className="sidebar-footer">
           {isLoggedIn ? (
-            <div className="user-profile-card gold-tier">
-              <div className="user-avatar">
+            <div className="user-profile-card">
+              <div className="avatar-base user-avatar">
                 {profileData.avatarImage ? (
-                  <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
+                  <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   profileData.initials
                 )}
@@ -781,10 +794,7 @@ export default function ProfilePreview() {
               <div className="user-info">
                 <div className="user-name">{profileData.name}</div>
                 <div style={{ marginTop: '2px' }}>
-                  <span className="badge founding">
-                    <span className="material-icons-round" style={{ fontSize: '25px' }}>verified</span>
-                    <span>Founding Partner</span>
-                  </span>
+                  <span className="badge founding">Founding Partner</span>
                 </div>
               </div>
               <button className="btn-logout-icon" onClick={handleLogout} title="Sign Out">
@@ -792,115 +802,143 @@ export default function ProfilePreview() {
               </button>
             </div>
           ) : (
-            <div className="user-profile-card guest" onClick={async () => {
-              // Close sidebar on mobile
-              setIsSidebarOpen(false)
-              
-              // Get email from profile data or URL params
-              let emailToUse = profileData.email
-              if (!emailToUse) {
-                emailToUse = searchParams.get('email') || ''
-                if (emailToUse) {
-                  // Try to load profile
-                  try {
-                    await loadProviderProfile(emailToUse)
-                  } catch (e) {
-                    console.error('Failed to load profile:', e)
-                  }
-                }
-              }
-              
-              if (emailToUse) {
-                setLoginForm({ ...loginForm, email: emailToUse })
-              }
-              
-              // Check if came from email verification (from=verify param)
+            (() => {
               const fromVerify = searchParams.get('from') === 'verify'
-              
-              if (fromVerify) {
-                // Came from email verification → show claim mode
-                setIsClaiming(true)
-              } else {
-                // Direct access or other links → show login mode
-                setIsClaiming(false)
-              }
-              
-              setIsLoginModalOpen(true)
-            }}>
-              <div className="user-avatar guest">
-                <span className="material-icons-round">person</span>
-              </div>
-            <div className="user-info">
-              <div className="user-name">{t('guest_view')}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--sidebar-text)' }}>{t('login_to_edit')}</div>
-            </div>
-              <button className="btn-logout-icon">
-                <span className="material-icons-round">login</span>
-              </button>
-            </div>
+              return (
+                <button 
+                  className="guest-claim-btn"
+                  onClick={async () => {
+                    // Close sidebar on mobile
+                    setIsSidebarOpen(false)
+                    
+                    // Get email from profile data or URL params
+                    let emailToUse = profileData.email
+                    if (!emailToUse) {
+                      emailToUse = searchParams.get('email') || ''
+                      if (emailToUse) {
+                        // Try to load profile
+                        try {
+                          await loadProviderProfile(emailToUse)
+                        } catch (e) {
+                          console.error('Failed to load profile:', e)
+                        }
+                      }
+                    }
+                    
+                    if (emailToUse) {
+                      setLoginForm({ ...loginForm, email: emailToUse })
+                    }
+                    
+                    // Check if came from email verification (from=verify param)
+                    if (fromVerify) {
+                      // Came from email verification → show claim mode
+                      setIsClaiming(true)
+                    } else {
+                      // Direct access or other links → show login mode
+                      setIsClaiming(false)
+                    }
+                    
+                    setIsLoginModalOpen(true)
+                  }}
+                >
+                  {fromVerify ? (
+                    <>
+                      <span className="material-icons-round" style={{ fontSize: '24px' }}>rocket_launch</span>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>Claim Account</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Go Live for Free</div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-icons-round" style={{ fontSize: '24px' }}>login</span>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>Login</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Access Your Profile</div>
+                      </div>
+                    </>
+                  )}
+                </button>
+              )
+            })()
           )}
-          <div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            {t('waitlist_id')}: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{providerId || '#PRO-8821'}</span>
-          </div>
         </div>
       </aside>
 
       <main className="main">
-        <div className="header">
-          <div>
-            <h1 className="page-title">{t('page_title')}</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-              {t('page_subtitle')}
-            </p>
-          </div>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 style={{ fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.03em', marginBottom: '0.5rem', color: 'var(--text-main)' }}>
+            Build Your Digital Storefront
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
+            {t('page_subtitle')}
+          </p>
         </div>
 
-        <div className="phone-frame">
-          <div className="p-header" style={{ backgroundImage: profileData.bannerImage ? `url(${profileData.bannerImage})` : undefined }}>
-            <div className="p-badge">
-              <span className="material-icons-round" style={{ fontSize: '12px', color: '#F59E0B' }}>verified</span>
-              <span>{t('verified_partner')}</span>
+        <div className={`profile-canvas ${isLoggedIn ? 'is-founding' : ''}`}>
+          <div className="provider-hero" style={{ backgroundImage: profileData.bannerImage ? `url(${profileData.bannerImage})` : undefined }}>
+            <div className="provider-avatar-large">
+              {profileData.avatarImage ? (
+                <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              ) : (
+                <div>{profileData.initials}</div>
+              )}
+              <div className="verified-tick">
+                <span className="material-icons-round" style={{ fontSize: '14px' }}>check</span>
+              </div>
             </div>
           </div>
-          <div className="p-body">
-            <div className="shop-avatar">
-              {profileData.avatarImage ? (
-                <img src={profileData.avatarImage} alt={profileData.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} />
-              ) : (
-                profileData.initials
+          
+          <div className="profile-body">
+            <h2 className="shop-title">{profileData.name}</h2>
+            
+            <div className="shop-meta">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span className="material-icons-round" style={{ color: '#F59E0B', fontSize: '16px' }}>star</span> 5.0
+              </span>
+              <span>{profileData.location}</span>
+              {isLoggedIn && (
+                <span className="badge founding">
+                  <span className="material-icons-round" style={{ fontSize: '10px' }}>verified</span> Founding Partner
+                </span>
               )}
             </div>
-            <div className="p-info">
-              <div className="p-name">{profileData.name}</div>
-              <div className="p-meta">
-                <span className="p-rating">
-                  <span className="material-icons-round" style={{ fontSize: '14px' }}>star</span> 5.0
-                </span>
-                <span>•</span>
-                <span>{profileData.location}</span>
-                <span>•</span>
-                <span style={{ color: '#10B981' }}>Less than 5km</span>
+            
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '0.25rem' }}>
+              {profileData.rate}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2rem' }}>
+              Base Labor Rate
+            </div>
+
+            <div className="provider-stats-grid">
+              <div className="p-stat-box">
+                <div className="p-stat-val" style={{ color: '#F59E0B' }}>5.0</div>
+                <div className="p-stat-lbl">Rating</div>
+              </div>
+              <div className="p-stat-box">
+                <div className="p-stat-val">142</div>
+                <div className="p-stat-lbl">Jobs Done</div>
               </div>
             </div>
-            <div className="p-stats">
-              <div className="p-stat-card">
-                <span className="stat-num">{profileData.rate}</span>
-                <span className="stat-label">{t('label_labor_rate')}</span>
-              </div>
-              <div className="p-stat-card">
-                <span className="stat-num">{profileData.turnaround}</span>
-                <span className="stat-label">{t('label_avg_turnaround')}</span>
-              </div>
-            </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--phone-text)', marginBottom: '8px' }}>
-              {t('label_services')}
-            </div>
-            <div className="p-services">
+
+            <div className="services-list">
               {servicesList.map((service, idx) => (
                 <span key={idx} className="service-pill">{service}</span>
               ))}
             </div>
-            <button className="p-btn">{t('btn_request_quote')}</button>
+
+            <div className="verified-status-box">
+              <span className="material-icons-round">verified_user</span>
+              <div>
+                <strong>PeePeep Verified</strong>
+                <p>This provider has passed identity, insurance, and certification checks.</p>
+              </div>
+            </div>
+
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => showToast("This is a preview of the booking flow. Sign up to start receiving real customer requests!", 'info')}>
+              Request Appointment (Preview)
+            </button>
           </div>
         </div>
       </main>
@@ -912,7 +950,7 @@ export default function ProfilePreview() {
         setIsClaiming(false)
       }}>
           <div className="modal-header">
-            <h3 className="modal-title">{isClaiming ? 'Secure Access' : 'Welcome Back'}</h3>
+            <h3 className="modal-title">{isClaiming ? 'Save Your Shop Profile' : 'Welcome Back'}</h3>
             <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => {
               setIsLoginModalOpen(false)
               setLoginError('')
@@ -921,9 +959,9 @@ export default function ProfilePreview() {
           </div>
           <form onSubmit={handleLogin}>
             <div className="modal-body">
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                 {isClaiming 
-                  ? 'Create a password to claim this Verified Shop Profile.'
+                  ? <>You've customized your storefront. <strong>Create a free account</strong> to save these changes and go live in the marketplace.</>
                   : 'Enter your password to access your shop dashboard.'}
               </p>
               
@@ -935,7 +973,8 @@ export default function ProfilePreview() {
                   disabled={isGoogleLoading || isLoading}
                   style={{
                     opacity: (isGoogleLoading || isLoading) ? 0.6 : 1,
-                    cursor: (isGoogleLoading || isLoading) ? 'wait' : 'pointer'
+                    cursor: (isGoogleLoading || isLoading) ? 'wait' : 'pointer',
+                    width: '100%'
                   }}
                 >
                   <svg viewBox="0 0 24 24" width="20" height="20">
@@ -946,20 +985,9 @@ export default function ProfilePreview() {
                   </svg>
                   {isGoogleLoading ? 'Loading...' : 'Google'}
                 </button>
-                <button
-                  type="button"
-                  className="btn-social"
-                  style={{ background: '#111827', color: 'white', borderColor: '#111827' }}
-                  onClick={() => alert('Apple Sign-In - Coming Soon')}
-                >
-                  <svg viewBox="0 0 384 512" fill="white" width="16" height="16">
-                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 52.3-11.4 69.5-34.3z"/>
-                  </svg>
-                  Apple
-                </button>
               </div>
               
-              <div className="auth-divider">Or continue with email</div>
+              <div className="auth-divider">Or use email</div>
               
               {loginError && (
                 <div style={{ 
@@ -975,50 +1003,37 @@ export default function ProfilePreview() {
               )}
 
               <label className="form-label">Email</label>
-              <div className="input-group-icon">
-                <input
-                  type="email"
-                  className="form-control"
-                  value={loginForm.email || profileData.email}
-                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                  placeholder="provider@peepeep.com"
-                  required
-                  disabled={isLoading}
-                />
-                <span className="material-icons-round">email</span>
-              </div>
+              <input
+                type="email"
+                className="form-control"
+                value={loginForm.email || profileData.email}
+                onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                placeholder="partner@shop.com"
+                required
+                disabled={isLoading}
+              />
               
               <label className="form-label">{isClaiming ? 'Create Password' : 'Password'}</label>
-              <div className="input-group-icon">
-                <input
-                  type="password"
-                  className="form-control"
-                  value={loginForm.password}
-                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  placeholder="••••••••"
-                  required
-                  disabled={isLoading}
-                  minLength={isClaiming ? 8 : undefined}
-                />
-                <span className="material-icons-round">lock</span>
-              </div>
+              <input
+                type="password"
+                className="form-control"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                placeholder="••••••••"
+                id="auth-password"
+                required
+                disabled={isLoading}
+                minLength={isClaiming ? 8 : undefined}
+              />
               
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', justifyContent: 'center' }}
+                style={{ width: '100%' }}
+                id="login-btn"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <>
-                    <span className="material-icons-round" style={{ animation: 'spin 1s linear infinite' }}>sync</span>
-                    {isClaiming ? 'Claiming...' : 'Logging in...'}
-                  </>
-                ) : (
-                  <>
-                    <span className="material-icons-round">{isClaiming ? 'shield' : 'lock_open'}</span> {isClaiming ? 'Claim & Login' : 'Login'}
-                  </>
-                )}
+                {isLoading ? (isClaiming ? 'Creating Account...' : 'Logging in...') : (isClaiming ? 'Save & Publish' : 'Login')}
               </button>
             </div>
           </form>
