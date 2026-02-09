@@ -141,7 +141,13 @@ export default function LandingPage() {
           const items = featuresRef.current?.querySelectorAll('.feature-item')
           const tl2 = gsap.timeline({ defaults: { ease: 'power3.out' } })
           if (title) tl2.from(title, { duration: 0.5, y: 24, opacity: 0 })
-          if (items?.length) tl2.from(items, { duration: 0.6, y: 40, opacity: 0, stagger: 0.12 }, '-=0.2')
+          if (items?.length) tl2.from(items, {
+            duration: 0.6,
+            y: 40,
+            opacity: 0,
+            stagger: 0.12,
+            clearProps: 'transform,opacity',
+          }, '-=0.2')
         },
         once: true,
       })

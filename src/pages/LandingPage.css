@@ -373,7 +373,7 @@ header .brandLanding strong span,
     0 0 0 1px rgba(0, 0, 0, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   text-align: center;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -387,6 +387,7 @@ header .brandLanding strong span,
 }
 
 .card-form:hover {
+  transform: translateY(-4px);
   box-shadow:
     0 40px 80px -16px rgba(37, 99, 235, 0.15),
     0 0 0 1px rgba(37, 99, 235, 0.08);
@@ -540,9 +541,15 @@ select.vehicle-input:disabled {
   width: 100%;
   font-size: 1rem;
   color: var(--text-main);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, transform 0.25s ease;
   outline: none;
   font-family: inherit;
+}
+
+.card-form .vehicle-input:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+  transform: translateY(-1px);
 }
 
 .vehicle-input:focus {
@@ -752,11 +759,12 @@ select.vehicle-input:disabled {
   background: linear-gradient(180deg, var(--bg-subtle) 0%, var(--bg-body) 100%);
   border-top: 1px solid var(--border);
   margin-top: 4rem;
+  overflow: visible;
 }
 
 .features-title {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 3rem;
   margin-top: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
@@ -771,6 +779,7 @@ select.vehicle-input:disabled {
   gap: 2rem;
   text-align: center;
   margin-bottom: 2rem;
+  overflow: visible;
 }
 
 .feature-item {
@@ -778,13 +787,18 @@ select.vehicle-input:disabled {
   border-radius: 24px;
   border: 1px solid var(--border);
   background: var(--bg-card);
+  cursor: default;
+  overflow: visible;
+  /* Whole-card lift: same style as Check Early Access */
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 .feature-item:hover {
   transform: translateY(-8px);
-  box-shadow: 0 24px 48px -12px rgba(37, 99, 235, 0.18);
-  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow:
+    0 40px 80px -16px rgba(37, 99, 235, 0.15),
+    0 0 0 1px rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.12);
 }
 
 .f-icon-wrap {
