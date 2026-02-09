@@ -32,6 +32,8 @@ export default function ProModal({
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [showBusinessNamePrompt, setShowBusinessNamePrompt] = useState(false)
   const [googleUserInfo, setGoogleUserInfo] = useState<GoogleUserInfo | null>(null)
+  const googleSignInFocusCleanupRef = useRef<(() => void) | null>(null)
+  const googleSignInStartTimeRef = useRef<number | null>(null)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -67,6 +69,8 @@ export default function ProModal({
     try {
       cleanup = initializeGoogleAuth(
         async (userInfo: GoogleUserInfo) => {
+          googleSignInFocusCleanupRef.current?.()
+          googleSignInFocusCleanupRef.current = null
           setIsGoogleLoading(false)
           setGoogleUserInfo(userInfo)
           setFullName(userInfo.name)
@@ -76,6 +80,8 @@ export default function ProModal({
         },
         (error) => {
           console.error('Google sign-in error:', error)
+          googleSignInFocusCleanupRef.current?.()
+          googleSignInFocusCleanupRef.current = null
           setIsGoogleLoading(false)
           showToast('Google sign-in failed. Please try again or use email sign-up.', 'error')
         }
@@ -120,6 +126,9 @@ export default function ProModal({
   }
 
   const handleClose = () => {
+    googleSignInFocusCleanupRef.current?.()
+    googleSignInFocusCleanupRef.current = null
+    setIsGoogleLoading(false)
     dialogRef.current?.close()
     onClose()
     // Reset state when closing
@@ -132,8 +141,23 @@ export default function ProModal({
 
   const handleGoogleSignIn = () => {
     try {
+      googleSignInFocusCleanupRef.current?.()
       setIsGoogleLoading(true)
+      googleSignInStartTimeRef.current = Date.now()
       triggerGoogleSignIn()
+      const onFocus = () => {
+        const started = googleSignInStartTimeRef.current
+        if (started != null && Date.now() - started > 1500) {
+          googleSignInFocusCleanupRef.current = null
+          window.removeEventListener('focus', onFocus)
+          setIsGoogleLoading(false)
+          googleSignInStartTimeRef.current = null
+        }
+      }
+      window.addEventListener('focus', onFocus)
+      googleSignInFocusCleanupRef.current = () => {
+        window.removeEventListener('focus', onFocus)
+      }
     } catch (error) {
       console.error('Failed to trigger Google sign-in:', error)
       setIsGoogleLoading(false)

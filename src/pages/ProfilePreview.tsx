@@ -44,6 +44,8 @@ export default function ProfilePreview() {
   const [isClaiming, setIsClaiming] = useState(false) // true if claiming new account, false if logging in
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const googleSignInFocusCleanupRef = useRef<(() => void) | null>(null)
+  const googleSignInStartTimeRef = useRef<number | null>(null)
   
   // Profile data
   const [profileData, setProfileData] = useState({
@@ -180,11 +182,15 @@ export default function ProfilePreview() {
     try {
       cleanup = initializeGoogleAuth(
         async (userInfo: GoogleUserInfo, credential?: string) => {
+          googleSignInFocusCleanupRef.current?.()
+          googleSignInFocusCleanupRef.current = null
           setIsGoogleLoading(false)
           await handleGoogleLogin(userInfo, credential)
         },
         (error) => {
           console.error('Google sign-in error:', error)
+          googleSignInFocusCleanupRef.current?.()
+          googleSignInFocusCleanupRef.current = null
           setIsGoogleLoading(false)
           setLoginError('Google sign-in failed. Please try again or use email/password login.')
         }
@@ -367,9 +373,24 @@ export default function ProfilePreview() {
 
   const handleGoogleSignIn = () => {
     try {
+      googleSignInFocusCleanupRef.current?.()
       setIsGoogleLoading(true)
       setLoginError('')
+      googleSignInStartTimeRef.current = Date.now()
       triggerGoogleSignIn()
+      const onFocus = () => {
+        const started = googleSignInStartTimeRef.current
+        if (started != null && Date.now() - started > 1500) {
+          googleSignInFocusCleanupRef.current = null
+          window.removeEventListener('focus', onFocus)
+          setIsGoogleLoading(false)
+          googleSignInStartTimeRef.current = null
+        }
+      }
+      window.addEventListener('focus', onFocus)
+      googleSignInFocusCleanupRef.current = () => {
+        window.removeEventListener('focus', onFocus)
+      }
     } catch (error) {
       console.error('Failed to trigger Google sign-in:', error)
       setIsGoogleLoading(false)
@@ -1016,6 +1037,9 @@ export default function ProfilePreview() {
 
       {/* Login Modal – same look as LandingPage (ProModal) */}
       <dialog ref={loginDialogRef} className="modal modal-login" id="modal-login" onClose={() => {
+        googleSignInFocusCleanupRef.current?.()
+        googleSignInFocusCleanupRef.current = null
+        setIsGoogleLoading(false)
         setIsLoginModalOpen(false)
         setLoginError('')
         setIsClaiming(false)
@@ -1023,6 +1047,9 @@ export default function ProfilePreview() {
           <div className="modal-header">
             <h3 className="modal-title">{isClaiming ? 'Save Your Shop Profile' : 'Welcome Back'}</h3>
             <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => {
+              googleSignInFocusCleanupRef.current?.()
+              googleSignInFocusCleanupRef.current = null
+              setIsGoogleLoading(false)
               setIsLoginModalOpen(false)
               setLoginError('')
               setIsClaiming(false)
