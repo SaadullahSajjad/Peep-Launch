@@ -186,18 +186,29 @@ export default function ProModal({
       </div>
       <form onSubmit={handleSubmit} id="pro-form">
         <div className="modal-body">
+          {(isGoogleLoading || isSubmitting) ? (
+            <div className="pro-processing">
+              <div className="pro-spinner" aria-hidden="true">
+                <span className="material-icons-round">{isGoogleLoading ? 'login' : 'hourglass_top'}</span>
+              </div>
+              <p className="pro-text">
+                {isGoogleLoading
+                  ? (language === 'en' ? 'Signing in with Google...' : 'Connexion avec Google...')
+                  : (language === 'en' ? 'Applying...' : 'Envoi en cours...')}
+              </p>
+              <div className="pro-dots">
+                <span className="pro-dot" />
+                <span className="pro-dot" />
+                <span className="pro-dot" />
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="social-grid">
             <button
               type="button"
               className="btn-social"
-              style={{ 
-                background: '#1E293B', 
-                borderColor: '#334155', 
-                color: 'white',
-                opacity: isGoogleLoading ? 0.6 : 1,
-                cursor: isGoogleLoading ? 'wait' : 'pointer',
-                width: '100%'
-              }}
+              style={{ width: '100%' }}
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading}
             >
@@ -207,13 +218,13 @@ export default function ProModal({
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              {isGoogleLoading ? 'Loading...' : 'Google'}
+              Google
             </button>
           </div>
 
           <div className="auth-divider">Or continue with email</div>
 
-          <p style={{ color: '#94A3B8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          <p className="pro-desc" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
             {t('pro_desc')}
           </p>
 
@@ -255,57 +266,47 @@ export default function ProModal({
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', color: '#0F172A', fontWeight: 800 }}
+            style={{ width: '100%', fontWeight: 800 }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '...' : t('btn_apply')}
+            {t('btn_apply')}
           </button>
+            </>
+          )}
         </div>
       </form>
 
       {/* Business Name Prompt Modal for Google Sign-In */}
       {showBusinessNamePrompt && googleUserInfo && (
         <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10000,
-          }}
+          className="pro-prompt-backdrop"
           onClick={(e) => {
-            if (e.target === e.currentTarget) {
+            if (e.target === e.currentTarget && !isSubmitting) {
               setShowBusinessNamePrompt(false)
               setGoogleUserInfo(null)
               setIsGoogleLoading(false)
             }
           }}
         >
-          <div 
-            style={{
-              background: '#0F172A',
-              border: '1px solid #334155',
-              borderRadius: '12px',
-              padding: '2rem',
-              maxWidth: '400px',
-              width: '90%',
-              color: 'white',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ 
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              marginBottom: '1rem',
-              color: 'white'
-            }}>
-              Almost there!
-            </h3>
-            <p style={{ color: '#94A3B8', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          <div className="pro-prompt-card" onClick={(e) => e.stopPropagation()}>
+            {isSubmitting ? (
+              <div className="pro-processing">
+                <div className="pro-spinner" aria-hidden="true">
+                  <span className="material-icons-round">save</span>
+                </div>
+                <p className="pro-text">
+                  {language === 'en' ? 'Saving...' : 'Enregistrement...'}
+                </p>
+                <div className="pro-dots">
+                  <span className="pro-dot" />
+                  <span className="pro-dot" />
+                  <span className="pro-dot" />
+                </div>
+              </div>
+            ) : (
+              <>
+            <h3 className="pro-prompt-title">Almost there!</h3>
+            <p className="pro-prompt-desc">
               We need your business name to complete the registration.
             </p>
             <form onSubmit={handleGoogleBusinessNameSubmit}>
@@ -320,12 +321,9 @@ export default function ProModal({
                 placeholder="Joe's Garage"
                 required
                 autoFocus
-                style={{
-                  width: '100%',
-                  marginBottom: '1.5rem',
-                }}
+                style={{ width: '100%', marginBottom: '1.5rem' }}
               />
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div className="pro-prompt-actions">
                 <button
                   type="button"
                   className="btn btn-ghost"
@@ -342,17 +340,15 @@ export default function ProModal({
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={isSubmitting || !businessName.trim()}
-                  style={{ 
-                    flex: 1, 
-                    color: '#0F172A', 
-                    fontWeight: 800 
-                  }}
+                  disabled={!businessName.trim()}
+                  style={{ flex: 1, fontWeight: 800 }}
                 >
-                  {isSubmitting ? '...' : 'Continue'}
+                  Continue
                 </button>
               </div>
             </form>
+              </>
+            )}
           </div>
         </div>
       )}

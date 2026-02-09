@@ -270,10 +270,24 @@ export default function ProWizard({
 
         {currentStep === 4 && (
           <div className="wizard-step active" id="w-step-4">
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', marginBottom: '0.75rem' }}>
-              Get Verified (Recommended)
-            </h1>
-            <p style={{ color: '#94A3B8', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+            {isSubmitting ? (
+              <div className="wizard-processing">
+                <div className="wizard-spinner" aria-hidden="true">
+                  <span className="material-icons-round">check_circle</span>
+                </div>
+                <p className="wizard-processing-text">
+                  {language === 'en' ? 'Completing your profile...' : 'Finalisation du profil...'}
+                </p>
+                <div className="wizard-processing-dots">
+                  <span className="wizard-dot" />
+                  <span className="wizard-dot" />
+                  <span className="wizard-dot" />
+                </div>
+              </div>
+            ) : (
+              <>
+            <h1 className="wizard-step-title">Get Verified (Recommended)</h1>
+            <p className="wizard-step-desc">
               Upload your business license to get the Verified Badge and rank higher in search results.
             </p>
             <label className="upload-box">
@@ -291,18 +305,21 @@ export default function ProWizard({
                 {licenseFile ? licenseFile.name : 'Upload Business License '}
               </div>
             </label>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
-              <button className="btn btn-ghost" onClick={() => prev(3)}>
+            <div className="wizard-step-actions">
+              <button type="button" className="btn btn-ghost" onClick={() => prev(3)}>
                 Back
               </button>
               <button
+                type="button"
                 className="btn btn-primary"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                Submit
               </button>
             </div>
+              </>
+            )}
           </div>
         )}
       </div>

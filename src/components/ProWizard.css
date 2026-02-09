@@ -1,23 +1,203 @@
+/* Backdrop: same gradient mesh as landing page */
+#modal-wizard::backdrop {
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(37, 99, 235, 0.07) 0%,
+      rgba(37, 99, 235, 0.03) 35%,
+      rgba(37, 99, 235, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+@media (prefers-color-scheme: dark) {
+  #modal-wizard::backdrop {
+    background:
+      radial-gradient(
+        ellipse 140% 100% at 50% 0%,
+        rgba(37, 99, 235, 0.08) 0%,
+        rgba(37, 99, 235, 0.04) 35%,
+        rgba(37, 99, 235, 0.02) 55%,
+        transparent 72%
+      ),
+      rgba(15, 17, 21, 0.9);
+  }
+}
+
 .modal-wizard {
-  background-color: var(--pro-bg);
-  color: var(--pro-text);
-  border: 1px solid #334155;
+  position: relative;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 20px;
   max-width: 500px;
   width: 95%;
+  overflow: hidden;
+  animation: wizardSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Same soft blue gradient overlay as landing page */
+.modal-wizard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(37, 99, 235, 0.07) 0%,
+    rgba(37, 99, 235, 0.03) 35%,
+    rgba(37, 99, 235, 0.01) 55%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes wizardSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-wizard .modal-header {
-  background-color: #0F172A;
-  border-bottom-color: #1E293B;
+  position: relative;
+  z-index: 1;
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+}
+
+.modal-wizard .modal-header h3 {
+  color: var(--text-main);
+}
+
+.modal-wizard .modal-body {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1.5rem 2rem;
 }
 
 .wizard-step {
   display: none;
-  animation: slideUpFade 0.3s ease;
+  animation: wizardStepIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wizard-step.active {
   display: block;
+}
+
+@keyframes wizardStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Step 4 processing state */
+.wizard-processing {
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 240px;
+  animation: wizardFadeIn 0.3s ease;
+}
+
+@keyframes wizardFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wizard-spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wizardPulse 1.2s ease-in-out infinite;
+}
+
+.wizard-spinner .material-icons-round {
+  font-size: 1.75rem !important;
+  color: var(--primary);
+  animation: wizardSpin 1.5s linear infinite;
+}
+
+@keyframes wizardSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wizardPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.9; }
+}
+
+.wizard-processing-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.wizard-processing-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.wizard-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0.5;
+  animation: wizardDot 1.2s ease-in-out infinite both;
+}
+
+.wizard-dot:nth-child(1) { animation-delay: 0s; }
+.wizard-dot:nth-child(2) { animation-delay: 0.15s; }
+.wizard-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes wizardDot {
+  0%, 80%, 100% { transform: scale(0.85); opacity: 0.5; }
+  40% { transform: scale(1.15); opacity: 1; }
+}
+
+.wizard-step-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+}
+
+.wizard-step-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.wizard-step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
 }
 
 .wizard-progress-track {
@@ -34,30 +214,31 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #334155;
+  background: var(--border);
   z-index: 0;
   transform: translateY(-50%);
 }
 
 .wp-step {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #1E293B;
-  border: 2px solid #334155;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border);
   display: grid;
   place-items: center;
   z-index: 1;
   font-weight: 700;
-  font-size: 0.85rem;
-  color: #94A3B8;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .wp-step.active {
-  border-color: #F59E0B;
-  background: #F59E0B;
-  color: #0F172A;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
 }
 
 .wp-step.completed {
@@ -73,18 +254,19 @@
 }
 
 .type-option {
-  border: 2px solid #334155;
-  border-radius: 12px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
   padding: 1.5rem;
   cursor: pointer;
   text-align: center;
-  transition: all 0.2s;
-  background: #1E293B;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
+  background: var(--bg-subtle);
   position: relative;
 }
 
 .type-option:hover {
-  border-color: #94A3B8;
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
 }
 
 .type-option input {
@@ -93,34 +275,34 @@
 }
 
 .type-option:has(input:checked) {
-  border-color: #F59E0B;
-  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .type-icon {
   font-size: 2rem;
-  color: #94A3B8;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .type-option:has(input:checked) .type-icon {
-  color: #F59E0B;
+  color: var(--primary);
 }
 
 .type-title {
   font-weight: 700;
   font-size: 0.95rem;
-  color: white;
+  color: var(--text-main);
 }
 
 .upload-box {
-  border: 2px dashed #334155;
-  border-radius: 12px;
+  border: 2px dashed var(--border);
+  border-radius: 16px;
   padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
-  background: #1E293B;
+  transition: border-color 0.25s ease, background 0.25s ease;
+  background: var(--bg-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -130,53 +312,54 @@
 }
 
 .upload-box:hover {
-  border-color: #F59E0B;
-  background: #262f40;
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 .upload-box:active {
-  border-color: #F59E0B;
-  background: #262f40;
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .upload-icon {
   font-size: 3rem;
-  color: #94A3B8;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .upload-box .upload-text {
-  color: #94A3B8;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
 
 /* Wizard button styling - gold gradient like Launching.html */
 .modal-wizard .btn-primary {
-  background: var(--pro-gold);
-  color: #0F172A;
+  background: var(--primary);
+  color: white;
   font-weight: 800;
+  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35);
 }
 
 .modal-wizard .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-  transform: translateY(-1px);
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.45);
 }
 
-/* Input fields should be dark to match the modal background */
 .modal-wizard .form-control {
-  background: #1E293B !important;
-  border: 1px solid #334155 !important;
-  color: white !important;
+  background: var(--bg-subtle) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-main) !important;
 }
 
 .modal-wizard .form-control:focus {
-  border-color: #F59E0B !important;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
   outline: none !important;
 }
 
 .modal-wizard .form-control::placeholder {
-  color: #94A3B8 !important;
+  color: var(--text-muted) !important;
 }
 

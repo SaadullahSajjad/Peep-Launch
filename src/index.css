@@ -14,7 +14,9 @@
   --success-bg: #ECFDF5;
   --success-text: #059669;
   --success: #10B981;
-  
+  --warning-bg: #FFFBEB;
+  --warning-text: #B45309;
+
   /* Pro Theme Tokens */
   --pro-bg: #0F172A;
   --pro-text: #F8FAFC;
@@ -30,6 +32,8 @@
     --text-main: #F9FAFB;
     --text-muted: #9CA3AF;
     --border: #2D3039;
+    --warning-bg: rgba(245, 158, 11, 0.12);
+    --warning-text: #FCD34D;
   }
 }
 

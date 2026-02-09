@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { gsap } from 'gsap'
 import { apiService } from '../utils/api'
 import html2canvas from 'html2canvas'
 import {
@@ -26,6 +27,7 @@ export default function ProfilePreview() {
   const [downloadSuccess, setDownloadSuccess] = useState(false)
   const [providerId, setProviderId] = useState<string | null>(null)
   const badgePreviewRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
   const t = useTranslations(language)
   const { showToast } = useToast()
   
@@ -114,6 +116,55 @@ export default function ProfilePreview() {
     setStoredLanguage(language)
     document.documentElement.lang = language
   }, [language])
+
+  // GSAP: page entrance and scroll-triggered animations (respects prefers-reduced-motion)
+  useEffect(() => {
+    const scope = pageRef.current
+    if (!scope) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const ctx = gsap.context(() => {
+      const sidebar = scope.querySelector('.sidebar')
+      const main = scope.querySelector('.main')
+      const mainHeading = scope.querySelector('.main > div:first-child')
+      const profileCanvas = scope.querySelector('.profile-canvas')
+      const hero = scope.querySelector('.provider-hero')
+      const avatar = scope.querySelector('.provider-avatar-large')
+      const profileBody = scope.querySelector('.profile-body')
+      const statsGrid = scope.querySelector('.provider-stats-grid')
+      const servicesList = scope.querySelector('.services-list')
+      const verifiedBox = scope.querySelector('.verified-status-box')
+
+      const fromVars = { opacity: 0, y: 20 }
+      const toVars = { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+
+      gsap.fromTo(sidebar, { x: -24, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out', delay: 0.1 })
+      gsap.fromTo(main, fromVars, { ...toVars, delay: 0.15 })
+      if (mainHeading) gsap.fromTo(mainHeading.children, fromVars, { ...toVars, delay: 0.2, stagger: 0.06 })
+      if (profileCanvas) gsap.fromTo(profileCanvas, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, delay: 0.25, ease: 'power2.out' })
+      if (hero) gsap.fromTo(hero, { opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.5, delay: 0.3, ease: 'power2.out' })
+      if (avatar) gsap.fromTo(avatar, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, delay: 0.4, ease: 'back.out(1.2)' })
+      if (profileBody) {
+        const title = profileBody.querySelector('.shop-title')
+        const meta = profileBody.querySelector('.shop-meta')
+        const rateBlock = profileBody.querySelector('.provider-stats-grid')?.previousElementSibling?.previousElementSibling
+        const els = [title, meta, rateBlock].filter(Boolean)
+        gsap.fromTo(els, fromVars, { ...toVars, delay: 0.35, stagger: 0.07 })
+      }
+      if (statsGrid && statsGrid.children.length) {
+        gsap.fromTo(statsGrid.children, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.5, stagger: 0.08, ease: 'power2.out' })
+      }
+      if (servicesList && servicesList.children.length) {
+        gsap.fromTo(servicesList.children, { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.35, delay: 0.55, stagger: 0.04, ease: 'power2.out' })
+      }
+      if (verifiedBox) gsap.fromTo(verifiedBox, fromVars, { ...toVars, delay: 0.65 })
+      const ctaBtn = scope.querySelector('.profile-body .btn-primary')
+      if (ctaBtn) gsap.fromTo(ctaBtn, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.75, ease: 'power2.out' })
+    }, scope)
+
+    return () => ctx.revert()
+  }, [])
 
   const toggleLanguage = () => {
     const newLang = language === 'en' ? 'fr' : 'en'
@@ -725,18 +776,38 @@ export default function ProfilePreview() {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
+  // GSAP: modal entrance when opened (no animation on close to avoid breaking focus)
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const runModalIn = (dialog: HTMLDialogElement | null) => {
+      if (!dialog?.open) return
+      const header = dialog.querySelector('.modal-header')
+      const body = dialog.querySelector('.modal-body')
+      if (header || body) {
+        gsap.fromTo(
+          [header, body].filter(Boolean),
+          { opacity: 0, y: 12, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out', overwrite: true }
+        )
+      }
+    }
+
+    if (isLoginModalOpen) requestAnimationFrame(() => runModalIn(loginDialogRef.current))
+    if (isEditModalOpen) requestAnimationFrame(() => runModalIn(editDialogRef.current))
+    if (isShareModalOpen) requestAnimationFrame(() => runModalIn(shareDialogRef.current))
+  }, [isLoginModalOpen, isEditModalOpen, isShareModalOpen])
+
   return (
-    <div className="profile-preview-page">
+    <div ref={pageRef} className="profile-preview-page">
       <button className="mobile-toggle" onClick={toggleSidebar}>
         <span className="material-icons-round">menu</span>
       </button>
       <div className={`overlay ${isSidebarOpen ? 'active' : ''}`} onClick={toggleSidebar}></div>
       <aside className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="brand-container">
-          <a href="/" className="brand">
-            Pee<span className="color">peep</span>
-            <span className="brand-badge">Pro</span>
-          </a>
+          <a href="/" className="brand"><span className="brand-text">Pee</span><span className="color">peep</span><span className="brand-badge">Pro</span></a>
           <button className="lang-toggle" onClick={toggleLanguage}>
             {language === 'en' ? 'FR' : 'EN'}
           </button>
@@ -751,7 +822,7 @@ export default function ProfilePreview() {
                   <div className="pulse-dot"></div>
                   <span>Live & Public</span>
                 </div>
-                <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                <p style={{ color: 'var(--sidebar-text)', fontSize: '0.85rem', lineHeight: 1.4 ,marginBottom:0}}>
                   Your shop is visible in the marketplace. Changes update in real-time.
                 </p>
               </>
@@ -866,11 +937,11 @@ export default function ProfilePreview() {
       </aside>
 
       <main className="main">
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.03em', marginBottom: '0.5rem', color: 'var(--text-main)' }}>
+        <div className="main-heading-wrap">
+          <h1 className="page-title">
             Build Your Digital Storefront
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
+          <p className="page-subtitle">
             {t('page_subtitle')}
           </p>
         </div>
@@ -943,8 +1014,8 @@ export default function ProfilePreview() {
         </div>
       </main>
 
-      {/* Login Modal */}
-      <dialog ref={loginDialogRef} className="modal" onClose={() => {
+      {/* Login Modal – same look as LandingPage (ProModal) */}
+      <dialog ref={loginDialogRef} className="modal modal-login" id="modal-login" onClose={() => {
         setIsLoginModalOpen(false)
         setLoginError('')
         setIsClaiming(false)
@@ -968,7 +1039,7 @@ export default function ProfilePreview() {
               <div className="social-grid">
                 <button
                   type="button"
-                  className="btn-social"
+                  className="btn-social btn-google"
                   onClick={handleGoogleSignIn}
                   disabled={isGoogleLoading || isLoading}
                   style={{
@@ -1039,15 +1110,15 @@ export default function ProfilePreview() {
           </form>
         </dialog>
 
-      {/* Edit Modal */}
-      <dialog ref={editDialogRef} className="modal" onClose={() => setIsEditModalOpen(false)}>
+      {/* Edit Modal – same look as LandingPage + modern UI & animation */}
+      <dialog ref={editDialogRef} className="modal modal-edit" id="modal-edit" onClose={() => setIsEditModalOpen(false)}>
           <div className="modal-header">
             <h3 className="modal-title">Edit Public Profile</h3>
-            <span className="material-icons-round" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setIsEditModalOpen(false)}>close</span>
+            <span className="material-icons-round close-icon" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => setIsEditModalOpen(false)}>close</span>
           </div>
-          <div className="modal-body">
+          <div className="modal-body modal-edit-body">
             <div className="form-label">Branding Assets</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="edit-upload-grid">
               <label className={`upload-trigger ${bannerPreview || profileData.bannerImage ? 'has-file' : ''}`} style={{ backgroundImage: bannerPreview || profileData.bannerImage ? `url(${bannerPreview || profileData.bannerImage})` : undefined }}>
                 <input
                   type="file"
@@ -1092,7 +1163,7 @@ export default function ProfilePreview() {
               value={editForm.location}
               onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
             />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="edit-form-row">
               <div>
                 <label className="form-label">{t('label_labor_rate')}</label>
                 <input

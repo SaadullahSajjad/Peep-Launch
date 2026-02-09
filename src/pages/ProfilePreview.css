@@ -113,15 +113,15 @@
   font-family: inherit;
 }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR (Why Join–style gradient) --- */
 .sidebar {
-  background: var(--sidebar-bg);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, var(--bg-subtle) 0%, var(--bg-body) 100%);
+  border-right: 1px solid var(--border);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   z-index: 100;
-  color: white;
+  color: var(--text-main);
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
@@ -130,6 +130,24 @@
   /* Firefox scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #475569 transparent;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 0% 0%, rgba(37, 99, 235, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sidebar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar .brand {
+  color: var(--text-main);
 }
 
 /* Custom scrollbar for sidebar (Webkit browsers) */
@@ -155,22 +173,33 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2.5rem;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.brand-container .brand {
+  flex-shrink: 0;
+  min-width: auto;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
 }
 
 .sidebar .lang-toggle { 
   font-size: 0.75rem; 
   font-weight: 700; 
-  color: var(--sidebar-text); 
+  color: var(--text-muted); 
   cursor: pointer; 
-  border: 1px solid rgba(255,255,255,0.1); 
+  border: 1px solid var(--border); 
   padding: 4px 8px; 
   border-radius: 6px; 
   transition: 0.2s; 
   background: transparent;
 }
 .sidebar .lang-toggle:hover { 
-  color: white; 
-  border-color: white; 
+  color: var(--text-main); 
+  border-color: var(--text-main); 
 }
 
 .brand {
@@ -179,31 +208,48 @@
   color: #ffffff;
   text-decoration: none;
   letter-spacing: -0.04em;
-  display: flex;
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
-  gap: 0;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .brand .color {
   color: #3B82F6;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-badge {
+  display: inline-flex;
+  align-items: center;
   background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   color: #FFFFFF !important;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
-  margin-left: 8px;
+  margin-left: 4px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: 'Inter', sans-serif;
-  transform: translateY(-2px);
+  line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.brand .brand-text,
+.brand .color {
+  display: inline;
+  white-space: nowrap;
 }
 
 .brand .brand-badge {
   color: #FFFFFF !important;
+  white-space: nowrap;
 }
 
 .control-group {
@@ -214,17 +260,27 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--sidebar-text);
+  color: var(--text-muted);
   font-weight: 800;
   margin-bottom: 1rem;
 }
 
 .action-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem;
   margin-bottom: 1rem;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  cursor: default;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.15), 0 0 0 1px rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+  background: var(--bg-subtle);
 }
 
 .status-indicator {
@@ -283,8 +339,8 @@
 }
 
 .user-profile-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
@@ -292,10 +348,12 @@
   gap: 1rem;
   transition: 0.2s;
   cursor: pointer;
+  box-shadow: var(--shadow-card);
 }
 
 .user-profile-card:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-subtle);
+  box-shadow: var(--shadow-hover);
 }
 
 .user-info {
@@ -306,7 +364,7 @@
 .user-name {
   font-weight: 700;
   font-size: 0.9rem;
-  color: white;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -329,7 +387,7 @@
   color: var(--danger-text);
 }
 
-/* --- MAIN LAYOUT --- */
+/* --- MAIN LAYOUT (landing-page–style background) --- */
 .main {
   flex: 1;
   overflow-y: auto;
@@ -343,6 +401,49 @@
   /* Firefox scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #475569 transparent;
+}
+
+.main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(37, 99, 235, 0.07) 0%,
+    rgba(37, 99, 235, 0.03) 35%,
+    rgba(37, 99, 235, 0.01) 55%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main > * {
+  position: relative;
+  z-index: 1;
+}
+
+.main-heading-wrap {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Page title – same shadow as “The Future of Car Repair” hero */
+.page-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  text-shadow: 0 0 28px rgba(255, 255, 255, 0.12), 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: text-shadow 0.3s ease;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0;
 }
 
 /* Custom scrollbar for main content (Webkit browsers) */
@@ -363,35 +464,48 @@
   background: #64748B;
 }
 
-/* The Profile Container */
+/* The Profile Container – modern card with soft shadow */
 .profile-canvas {
   width: 100%;
   max-width: 680px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   position: relative;
   margin: 0 auto;
   animation: fadeIn 0.4s ease-out;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.profile-canvas:hover {
+  box-shadow:
+    0 36px 72px -16px rgba(37, 99, 235, 0.12),
+    0 0 0 1px rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 /* Founding Partner Styling */
 .profile-canvas.is-founding {
-  border: 2px solid var(--gold);
-  box-shadow: 0 20px 50px -12px rgba(245, 158, 11, 0.15);
+  border: 2px solid var(--primary);
+  box-shadow: 0 20px 50px -12px rgba(37, 99, 235, 0.25), 0 0 0 1px rgba(37, 99, 235, 0.12);
+}
+
+.profile-canvas.is-founding:hover {
+  box-shadow: 0 28px 56px -12px rgba(37, 99, 235, 0.3), 0 0 0 1px rgba(37, 99, 235, 0.15);
 }
 
 .profile-canvas.is-founding .provider-hero {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
 }
 
 @media (prefers-color-scheme: dark) {
   .profile-canvas.is-founding .provider-hero {
-    background: linear-gradient(135deg, #2A2210 0%, #451a03 100%);
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
   }
 }
 
@@ -438,8 +552,9 @@
 
 /* Founding Avatar Border */
 .profile-canvas.is-founding .provider-avatar-large {
-  border-color: var(--gold);
-  color: #B45309;
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .provider-avatar-large img {
@@ -466,7 +581,8 @@
 }
 
 .profile-canvas.is-founding .verified-tick {
-  background: linear-gradient(135deg, #F59E0B, #D97706);
+  background: var(--primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
 /* CONTENT BODY */
@@ -481,6 +597,7 @@
   color: var(--text-main);
   margin-bottom: 0.5rem;
   line-height: 1.1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.08), 0 1px 8px rgba(0, 0, 0, 0.04);
 }
 
 .shop-meta {
@@ -508,12 +625,14 @@
   padding: 1rem 0.5rem;
   text-align: center;
   border: 1px solid var(--border);
-  transition: 0.2s;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .p-stat-box:hover {
   border-color: var(--primary);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.2);
 }
 
 .p-stat-val {
@@ -542,19 +661,20 @@
 }
 
 .service-pill {
-  background: #1F2937;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
   padding: 0.4rem 0.8rem;
   border-radius: 100px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #FFFFFF;
-  transition: 0.2s;
+  color: var(--text-main);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .service-pill:hover {
-  background: #374151;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
 /* VERIFIED BOX */
@@ -567,7 +687,12 @@
   display: flex;
   gap: 0.75rem;
   text-align: left;
-  align-items: flex-start;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.verified-status-box:hover {
+  box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.15);
 }
 
 .verified-status-box .material-icons-round {
@@ -625,13 +750,15 @@
 }
 
 .avatar-base.user-avatar {
-  background: linear-gradient(135deg, #F59E0B, #B45309);
-  color: white;
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .user-profile-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
@@ -639,16 +766,18 @@
   gap: 1rem;
   transition: 0.2s;
   cursor: pointer;
+  box-shadow: var(--shadow-card);
 }
 
 .user-profile-card:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-subtle);
+  box-shadow: var(--shadow-hover);
 }
 
 .user-name {
   font-weight: 700;
   font-size: 0.9rem;
-  color: white;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -687,12 +816,14 @@
 .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, background 0.25s ease;
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(37, 99, 235, 0.45);
 }
 
 .btn-outline {
@@ -729,8 +860,8 @@
 
 .sidebar .btn-sidebar-outline {
   background: transparent !important;
-  border: 2px solid rgba(255, 255, 255, 0.5) !important;
-  color: white !important;
+  border: 2px solid var(--border) !important;
+  color: var(--text-main) !important;
   width: 100%;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
@@ -743,9 +874,9 @@
 }
 
 .sidebar .btn-sidebar-outline:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
-  color: white !important;
+  background: var(--bg-subtle) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
 }
 
 /* --- PHONE MOCKUP --- */
@@ -975,11 +1106,306 @@
   -webkit-backdrop-filter: blur(4px) !important;
 }
 
+/* Login modal: same as LandingPage (ProModal) – gradient backdrop + card */
+#modal-login::backdrop {
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(37, 99, 235, 0.07) 0%,
+      rgba(37, 99, 235, 0.03) 35%,
+      rgba(37, 99, 235, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  #modal-login::backdrop {
+    background:
+      radial-gradient(
+        ellipse 140% 100% at 50% 0%,
+        rgba(37, 99, 235, 0.08) 0%,
+        rgba(37, 99, 235, 0.04) 35%,
+        rgba(37, 99, 235, 0.02) 55%,
+        transparent 72%
+      ),
+      rgba(15, 17, 21, 0.9) !important;
+  }
+}
+
+.profile-preview-page .modal-login {
+  position: relative;
+  background-color: var(--bg-card) !important;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 450px;
+  width: 95%;
+  overflow: hidden;
+}
+
+.profile-preview-page .modal-login::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(37, 99, 235, 0.07) 0%,
+    rgba(37, 99, 235, 0.03) 35%,
+    rgba(37, 99, 235, 0.01) 55%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.profile-preview-page .modal-login .modal-header {
+  position: relative;
+  z-index: 1;
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-preview-page .modal-login .modal-body {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-preview-page .modal-login .form-control {
+  background-color: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-main);
+}
+
+.profile-preview-page .modal-login .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.profile-preview-page .modal-login .form-label {
+  color: var(--text-muted);
+}
+
 /* Also add for open attribute dialogs */
 .profile-preview-page dialog[open]::backdrop {
   background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(4px) !important;
   -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.profile-preview-page #modal-login[open]::backdrop {
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(37, 99, 235, 0.07) 0%,
+      rgba(37, 99, 235, 0.03) 35%,
+      rgba(37, 99, 235, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .profile-preview-page #modal-login[open]::backdrop {
+    background:
+      radial-gradient(
+        ellipse 140% 100% at 50% 0%,
+        rgba(37, 99, 235, 0.08) 0%,
+        rgba(37, 99, 235, 0.04) 35%,
+        rgba(37, 99, 235, 0.02) 55%,
+        transparent 72%
+      ),
+      rgba(15, 17, 21, 0.9) !important;
+  }
+}
+
+/* ========== Edit Public Profile modal – Landing-style + modern UI & animation ========== */
+#modal-edit::backdrop {
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(37, 99, 235, 0.07) 0%,
+      rgba(37, 99, 235, 0.03) 35%,
+      rgba(37, 99, 235, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  #modal-edit::backdrop {
+    background:
+      radial-gradient(
+        ellipse 140% 100% at 50% 0%,
+        rgba(37, 99, 235, 0.08) 0%,
+        rgba(37, 99, 235, 0.04) 35%,
+        rgba(37, 99, 235, 0.02) 55%,
+        transparent 72%
+      ),
+      rgba(15, 17, 21, 0.9) !important;
+  }
+}
+
+.profile-preview-page .modal-edit {
+  position: relative;
+  background-color: var(--bg-card) !important;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 520px;
+  width: 95%;
+  overflow: hidden;
+  animation: modalEditIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes modalEditIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.profile-preview-page .modal-edit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(37, 99, 235, 0.07) 0%,
+    rgba(37, 99, 235, 0.03) 35%,
+    rgba(37, 99, 235, 0.01) 55%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.profile-preview-page .modal-edit .modal-header {
+  position: relative;
+  z-index: 1;
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+.profile-preview-page .modal-edit .modal-header .close-icon {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.profile-preview-page .modal-edit .modal-header .close-icon:hover {
+  transform: scale(1.1);
+  color: var(--text-main) !important;
+}
+
+.profile-preview-page .modal-edit .modal-body,
+.profile-preview-page .modal-edit .modal-edit-body {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-preview-page .modal-edit .form-control {
+  background-color: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-main);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
+}
+
+.profile-preview-page .modal-edit .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.profile-preview-page .modal-edit .form-label {
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+/* Edit modal: upload grid + animation */
+.edit-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-preview-page .modal-edit .edit-upload-grid .upload-trigger {
+  min-height: 120px;
+  border-radius: 16px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.profile-preview-page .modal-edit .edit-upload-grid .upload-trigger:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.2);
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.profile-preview-page .modal-edit .edit-upload-grid .upload-trigger .material-icons-round {
+  transition: transform 0.25s ease;
+}
+
+.profile-preview-page .modal-edit .edit-upload-grid .upload-trigger:hover .material-icons-round {
+  transform: scale(1.1);
+}
+
+/* Edit modal: form row (rate / turnaround) */
+.edit-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.profile-preview-page .modal-edit .btn-primary {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, background 0.25s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.profile-preview-page .modal-edit .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(37, 99, 235, 0.45);
+}
+
+.profile-preview-page .modal-edit .btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Staggered fade-in for edit modal content */
+.modal-edit-body > * {
+  animation: editContentIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.modal-edit-body .form-label:first-child { animation-delay: 0.05s; }
+.modal-edit-body .edit-upload-grid { animation-delay: 0.1s; }
+.modal-edit-body .edit-form-row { animation-delay: 0.2s; }
+.modal-edit-body .btn-primary { animation-delay: 0.28s; }
+
+@keyframes editContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-preview-page .modal-edit {
+    animation: none;
+  }
+  .modal-edit-body > * {
+    animation: none;
+  }
 }
 
 .modal-header {
@@ -998,27 +1424,28 @@
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(90vh - 80px);
-  /* Firefox scrollbar */
+  /* Firefox scrollbar – match input colors */
   scrollbar-width: thin;
-  scrollbar-color: #000000 transparent;
+  scrollbar-color: var(--border) var(--bg-subtle);
 }
 
-/* Custom scrollbar for modal body - black and small (Webkit browsers) */
+/* Custom scrollbar for modal body – same as input background/border (Webkit) */
 .modal-body::-webkit-scrollbar {
   width: 6px;
 }
 
 .modal-body::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-subtle);
+  border-radius: 3px;
 }
 
 .modal-body::-webkit-scrollbar-thumb {
-  background: #000000;
+  background: var(--border);
   border-radius: 3px;
 }
 
 .modal-body::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+  background: var(--text-muted);
 }
 
 .modal-title {
@@ -1088,6 +1515,49 @@
 .btn-social svg {
   width: 20px;
   height: 20px;
+}
+
+/* Prominent Google button – primary CTA look (like LandingPage) */
+.btn-google {
+  background: #ffffff !important;
+  border: 1px solid #dadce0 !important;
+  color: #3c4043 !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  padding: 0.85rem 1.25rem !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease !important;
+}
+
+.btn-google:hover:not(:disabled) {
+  background: #f8f9fa !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+  border-color: #dadce0 !important;
+}
+
+.btn-google:active:not(:disabled) {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-google svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-google {
+    background: #2d2d2d !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #e8eaed !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  .btn-google:hover:not(:disabled) {
+    background: #3d3d3d !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+  }
 }
 
 .auth-divider {

@@ -1,5 +1,7 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { apiService } from '../utils/api'
 import {
   getStoredLanguage,
@@ -14,6 +16,8 @@ import ProModal from '../components/ProModal'
 import ProWizard from '../components/ProWizard'
 import SearchableSelect from '../components/SearchableSelect'
 import './LandingPage.css'
+
+gsap.registerPlugin(ScrollTrigger)
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -51,12 +55,21 @@ export default function LandingPage() {
 
   // Loading states
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const [duplicateEmailError, setDuplicateEmailError] = useState(false)
   const [countdown, setCountdown] = useState(5)
   const [statusUrl, setStatusUrl] = useState<string | null>(null)
   
   // Modal refs
   const proSuccessDialogRef = useRef<HTMLDialogElement>(null)
+  const formContainerRef = useRef<HTMLDivElement>(null)
+  // GSAP refs
+  const headerRef = useRef<HTMLElement>(null)
+  const heroLine1Ref = useRef<HTMLSpanElement>(null)
+  const heroLine2Ref = useRef<HTMLSpanElement>(null)
+  const subtitleRef = useRef<HTMLParagraphElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const featuresRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setStoredLanguage(language)
@@ -81,6 +94,61 @@ export default function LandingPage() {
     }
   }, [currentStep, statusUrl, countdown, navigate])
 
+  // Mobile sticky CTA: show when form scrolls out of view
+  const [mobileStickyVisible, setMobileStickyVisible] = useState(false)
+  useEffect(() => {
+    const el = formContainerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setMobileStickyVisible(!entry.isIntersecting),
+      { threshold: 0.1, rootMargin: '0px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const scrollToForm = () => {
+    formContainerRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // GSAP: hero timeline + scroll-triggered animations
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      tl.from(headerRef.current, { duration: 0.6, y: -24, opacity: 0 })
+        .from(heroLine1Ref.current, { duration: 0.7, y: 36, opacity: 0 }, '-=0.3')
+        .from(heroLine2Ref.current, { duration: 0.7, y: 36, opacity: 0 }, '-=0.5')
+        .from(subtitleRef.current, { duration: 0.6, y: 28, opacity: 0 }, '-=0.4')
+        .from(formContainerRef.current, { duration: 0.8, y: 48, opacity: 0 }, '-=0.35')
+
+      ScrollTrigger.create({
+        trigger: previewRef.current,
+        start: 'top 85%',
+        onEnter: () => {
+          gsap.from(previewRef.current, { duration: 0.9, y: 50, opacity: 0, ease: 'power3.out' })
+        },
+        once: true,
+      })
+
+      ScrollTrigger.create({
+        trigger: featuresRef.current,
+        start: 'top 82%',
+        onEnter: () => {
+          const title = featuresRef.current?.querySelector('.features-title')
+          const items = featuresRef.current?.querySelectorAll('.feature-item')
+          const tl2 = gsap.timeline({ defaults: { ease: 'power3.out' } })
+          if (title) tl2.from(title, { duration: 0.5, y: 24, opacity: 0 })
+          if (items?.length) tl2.from(items, { duration: 0.6, y: 40, opacity: 0, stagger: 0.12 }, '-=0.2')
+        },
+        once: true,
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
   // Track referral click when page loads with referral code (only once)
   const hasTrackedRef = useRef(false)
   useEffect(() => {
@@ -104,7 +172,7 @@ export default function LandingPage() {
     setCurrentStep(step)
   }
 
-  // Step 1: Vehicle selection - just moves to step 2 (doesn't check availability)
+  // Step 1: Vehicle selection - show checking state for 2s then move to step 2
   const handleVehicleCheck = (e: FormEvent) => {
     e.preventDefault()
 
@@ -123,9 +191,12 @@ export default function LandingPage() {
       return
     }
 
-    // Just move to step 2 - no API call
-    setCurrentStep(2)
-    updateProgress(2)
+    setIsCheckingAvailability(true)
+    setTimeout(() => {
+      setIsCheckingAvailability(false)
+      setCurrentStep(2)
+      updateProgress(2)
+    }, 2000)
   }
 
   // Step 2: Email submission - does the actual API call
@@ -237,12 +308,22 @@ export default function LandingPage() {
   return (
     <div className="landing-page">
       <div className="container">
-        <header>
-          <a href="#" className="brandLanding">
-            Pee<span>peep</span>
+        <header ref={headerRef}>
+          <a href="#" className="brand brandLanding" aria-label="Peepeep Home">
+            <strong>Pee<span>peep</span></strong>
+            <span className="brand-tooltip">
+              {language === 'en' ? 'Yes, really.' : 'Oui, vraiment.'}
+            </span>
           </a>
 
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="header-actions">
+            {/* <button
+              type="button"
+              className="btn-text"
+              onClick={() => setIsContactOpen(true)}
+            >
+              {t('nav_privacy')}
+            </button> */}
             <button
               type="button"
               className="btn-text"
@@ -250,14 +331,6 @@ export default function LandingPage() {
             >
               {t('nav_pro')}
             </button>
-            {/* <button
-              type="button"
-              className="btn-text"
-              onClick={() => setIsContactOpen(true)}
-            >
-              {t('nav_contact')}
-            </button> */}
-
             <button className="lang-discreet" id="lang-btn" onClick={toggleLanguage}>
               <span id="lang-text">{t('btn_lang_switch')}</span>
             </button>
@@ -266,22 +339,14 @@ export default function LandingPage() {
 
         <section className="hero">
           <h1>
-            <span>{t('hero_title_1')}</span>
+            <span ref={heroLine1Ref} className="hero-line-1">{t('hero_title_1')}</span>
             <br />
-            <span className="h1-highlight">{t('hero_title_2')}</span>
+            <span ref={heroLine2Ref} className="hero-line-2 h1-highlight">{t('hero_title_2')}</span>
           </h1>
 
-          <p className="subtitle">
-            {t('hero_subtitle').split('. ').map((line, index, array) => (
-              <span key={index}>
-                {line}
-                {index < array.length - 1 ? '. ' : ''}
-                {index === 0 && <br />}
-              </span>
-            ))}
-          </p>
+          <p ref={subtitleRef} className="subtitle">{t('hero_subtitle')}</p>
 
-          <div className="form-container">
+          <div className="form-container" ref={formContainerRef} id="main-form-container">
             <div className="progress-steps">
               <div
                 className={`step-dot ${currentStep >= 1 ? (currentStep > 1 ? 'completed' : 'active') : ''}`}
@@ -299,21 +364,27 @@ export default function LandingPage() {
 
             {currentStep === 1 && (
               <div className="step active" id="step-1">
-                <div className="card-form" style={{ textAlign: 'left' }}>
+                <div className="card-form" style={{ textAlign: isCheckingAvailability ? 'center' : 'left' }}>
+                  {isCheckingAvailability ? (
+                    <div className="checking-availability">
+                      <div className="checking-spinner" aria-hidden="true">
+                        <span className="material-icons-round checking-icon">search</span>
+                      </div>
+                      <p className="checking-text">{t('checking_availability')}</p>
+                      <div className="checking-dots">
+                        <span className="checking-dot" />
+                        <span className="checking-dot" />
+                        <span className="checking-dot" />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
                       {t('step1_header')}
                     </h3>
-                    <span
-                      style={{
-                        fontSize: '0.75rem',
-                        background: '#FEF2F2',
-                        color: '#EF4444',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontWeight: 700,
-                      }}
-                    >
+                    <span className="badge-limited">
+                      <span className="material-icons-round">local_fire_department</span>
                       {t('badge_limited')}
                     </span>
                   </div>
@@ -406,6 +477,8 @@ export default function LandingPage() {
                       {t('txt_rollout')}
                     </div>
                   </form>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -577,104 +650,41 @@ export default function LandingPage() {
 
           </div>
 
-          <div className="preview-container">
-            <div
-              style={{
-                textAlign: 'center',
-                marginBottom: '1rem',
-                fontWeight: 600,
-                color: 'var(--text-muted)',
-                fontSize: '0.9rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-              }}
-            >
-              {t('sneak_peek')}
-            </div>
+          <div className="preview-container" ref={previewRef}>
+            <div className="sneak-peek-label">{t('sneak_peek')}</div>
             <div className="dashboard-mockup">
-              <div className="mock-overlay">
-                <div className="overlay-badge">{t('coming_soon')}</div>
-              </div>
               <div className="mock-nav">
                 <div className="mock-dot"></div>
                 <div className="mock-dot"></div>
                 <div className="mock-dot"></div>
               </div>
-              <div className="mock-body" style={{ filter: 'blur(1px)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <div
-                    style={{
-                      width: '150px',
-                      height: '20px',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '4px',
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      width: '100px',
-                      height: '30px',
-                      background: 'var(--primary)',
-                      borderRadius: '6px',
-                      opacity: 0.2,
-                    }}
-                  ></div>
+              <div className="mock-body">
+                <div>
+                  <div className="mock-body-title">{t('mock_active_quotes')}</div>
+                  <div className="mock-card">
+                    <div className="mock-row">
+                      <span className="mock-lbl">Service</span>
+                      <span className="mock-val">{t('mock_brake')}</span>
+                    </div>
+                    <div className="mock-row">
+                      <span className="mock-lbl">Vehicle</span>
+                      <span className="mock-val">Honda Civic</span>
+                    </div>
+                    <hr className="mock-hr" />
+                    <div className="mock-row mock-row-last">
+                      <span className="mock-lbl">Best Offer</span>
+                      <span className="mock-saving">$210.00</span>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100px',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    marginTop: '1rem',
-                    padding: '1rem',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '60%',
-                      height: '15px',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '4px',
-                      marginBottom: '10px',
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      width: '40%',
-                      height: '15px',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '4px',
-                    }}
-                  ></div>
-                </div>
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100px',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '1rem',
-                    opacity: 0.6,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '60%',
-                      height: '15px',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '4px',
-                      marginBottom: '10px',
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      width: '40%',
-                      height: '15px',
-                      background: 'var(--bg-subtle)',
-                      borderRadius: '4px',
-                    }}
-                  ></div>
+                <div className="mock-providers">
+                  <div className="mock-providers-title">Providers</div>
+                  <div className="mock-providers-desc">Scanning 12 nearby shops...</div>
+                  <div className="mock-avatars">
+                    <div className="mock-avatar" />
+                    <div className="mock-avatar" />
+                    <div className="mock-avatar" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -682,41 +692,42 @@ export default function LandingPage() {
         </section>
       </div>
 
-      <section className="features">
+      <section className="features" ref={featuresRef}>
         <div className="container">
-          <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {t('features_title')}
-          </h2>
+          <h2 className="features-title">{t('features_title')}</h2>
           <div className="feature-grid">
             <div className="feature-item">
-              <span className="material-icons-round f-icon">rocket_launch</span>
+              <span className="f-icon-wrap">
+                <span className="material-icons-round f-icon">savings</span>
+              </span>
               <h3>{t('feat1_title')}</h3>
               <p>{t('feat1_desc')}</p>
             </div>
             <div className="feature-item">
-              <span className="material-icons-round f-icon">monetization_on</span>
+              <span className="f-icon-wrap">
+                <span className="material-icons-round f-icon">monetization_on</span>
+              </span>
               <h3>{t('feat2_title')}</h3>
               <p>{t('feat2_desc')}</p>
             </div>
             <div className="feature-item">
-              <span className="material-icons-round f-icon">build_circle</span>
+              <span className="f-icon-wrap">
+                <span className="material-icons-round f-icon">verified</span>
+              </span>
               <h3>{t('feat3_title')}</h3>
               <p>{t('feat3_desc')}</p>
             </div>
           </div>
-          <div
-            style={{
-              marginTop: '2.5rem',
-              textAlign: 'center',
-              color: 'var(--text-muted)',
-              fontSize: '0.9rem',
-            }}
-          >
-            © 2025 Peepeep Inc.{' '}
-            <span style={{ opacity: 0.6 }}>{t('footer_tag')}</span>
-          </div>
         </div>
       </section>
+
+      <footer className="site-footer">
+        <div className="container">
+          <p className="footer-copy">
+            © 2025 Peepeep Inc. <span className="footer-tag">{t('footer_tag')}</span>
+          </p>
+        </div>
+      </footer>
 
       <ContactModal
         isOpen={isContactOpen}
@@ -744,88 +755,35 @@ export default function LandingPage() {
         email={storedProviderEmail}
       />
 
-      {/* Pro Success Modal */}
-      <dialog ref={proSuccessDialogRef} className="modal" id="modal-pro-success">
-        <div
-          className="modal-body"
-          style={{
-            padding: '2.5rem 2rem',
-            backgroundColor: '#0F172A',
-            color: 'white',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              background: 'rgba(245, 158, 11, 0.1)',
-              color: '#F59E0B',
-              borderRadius: '50%',
-              display: 'grid',
-              placeItems: 'center',
-              margin: '0 auto 1.5rem auto',
-              fontSize: '2rem',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-            }}
-          >
+      <div className={`mobile-sticky ${mobileStickyVisible ? 'visible' : ''}`}>
+        <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={scrollToForm}>
+          {language === 'en' ? 'Join Waitlist & Save' : 'Rejoindre la liste'}
+        </button>
+      </div>
+
+      {/* Pro Success Modal – landing-style background */}
+      <dialog ref={proSuccessDialogRef} className="modal modal-pro-success" id="modal-pro-success">
+        <div className="modal-body">
+          <div className="pro-success-icon">
             <span className="material-icons-round">rocket_launch</span>
           </div>
-          <h2
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              marginBottom: '0.5rem',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-            }}
-          >
+          <h2 className="pro-success-title">
             {t('success_pro_title')}
           </h2>
-          <p
-            style={{
-              color: '#94A3B8',
-              fontSize: '0.95rem',
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="pro-success-desc">
             {t('success_pro_desc')}
           </p>
 
-          <div
-            style={{
-              background: '#1E293B',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              marginTop: '1.5rem',
-              border: '1px solid #334155',
-              textAlign: 'left',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '0.9rem',
-                fontWeight: 700,
-                color: '#F59E0B',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '0.5rem',
-              }}
-            >
+          <div className="pro-success-nba">
+            <div className="pro-success-nba-title">
               {t('nba_title')}
             </div>
-            <p
-              style={{
-                color: '#E2E8F0',
-                fontSize: '0.9rem',
-                marginBottom: '1rem',
-                lineHeight: 1.5,
-              }}
-            >
+            <p className="pro-success-nba-desc">
               {t('nba_desc')}
             </p>
             <button
               className="btn btn-primary"
-              style={{ width: '100%', color: '#0F172A', fontWeight: 800 }}
+              style={{ width: '100%', fontWeight: 800 }}
               onClick={openProWizard}
             >
               {t('nba_btn')}
@@ -834,7 +792,7 @@ export default function LandingPage() {
 
           <button
             className="btn btn-ghost"
-            style={{ width: '100%', marginTop: '1rem', color: '#94A3B8' }}
+            style={{ width: '100%', marginTop: '1rem' }}
             onClick={() => {
               proSuccessDialogRef.current?.close()
               setIsProSuccessOpen(false)
