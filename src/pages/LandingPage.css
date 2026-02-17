@@ -335,6 +335,7 @@ header .brandLanding strong span,
   max-width: 500px;
   margin: 0 auto;
   position: relative;
+  z-index: 10;
   min-height: 140px;
 }
 
@@ -626,6 +627,8 @@ select.vehicle-input:disabled {
   margin-top: 5.5rem;
   perspective: 1000px;
   padding: 0 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .sneak-peek-label {
