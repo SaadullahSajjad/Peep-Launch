@@ -81,9 +81,9 @@
   inset: 0;
   background: radial-gradient(
     ellipse 140% 100% at 50% 0%,
-    rgba(37, 99, 235, 0.07) 0%,
-    rgba(37, 99, 235, 0.03) 35%,
-    rgba(37, 99, 235, 0.01) 55%,
+    rgba(0, 158, 255, 0.07) 0%,
+    rgba(0, 158, 255, 0.03) 35%,
+    rgba(0, 158, 255, 0.01) 55%,
     transparent 72%
   );
   pointer-events: none;
@@ -109,12 +109,7 @@ header {
 
 .brandLanding,
 .brand {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  font-size: 1.75rem;
-  color: var(--text-main);
   text-decoration: none;
-  letter-spacing: -0.03em;
   white-space: nowrap;
   display: inline-flex;
   flex-direction: column;
@@ -122,53 +117,21 @@ header {
   line-height: 1;
 }
 
-.brandLanding strong,
-.brand strong {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  color: #000000; /* "Pee" part: black in light mode for contrast */
+/* Logo image: show dark-text logo on light bg, light-text logo on dark bg */
+.brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
-/* Only the "peep" part of the logo is blue – not the tooltip */
-header .brandLanding strong span,
-.brandLanding strong span,
-.brand strong span {
-  color: var(--primary);
-}
-
-.brand-tooltip {
-  position: absolute;
-  top: -5px;
-  right: -90px;
-  background: #3D3520;
-  color: #F5C71D !important; /* override any parent span color */
-  font-size: 0.6rem;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-weight: 700;
-  transform: rotate(8deg);
-  pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Hide "Yes, really." on mobile to prevent overlap with For Mechanics */
-@media (max-width: 768px) {
-  .brand-tooltip {
-    display: none;
-  }
-}
+.logo-light-mode { display: block; }
+.logo-dark-mode  { display: none; }
 
 @media (prefers-color-scheme: dark) {
-  .brandLanding strong,
-  .brand strong {
-    color: var(--text-main); /* "Pee" part: light in dark mode */
-  }
-  .brand-tooltip {
-    background: #4A4228;
-    color: #FCD34D !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-  }
+  .logo-light-mode { display: none; }
+  .logo-dark-mode  { display: block; }
 }
+
 
 /* LIMITED SPOTS badge – pill, dark olive-brown bg, golden-yellow text + flame icon */
 .badge-limited {
@@ -188,12 +151,16 @@ header .brandLanding strong span,
 }
 
 .landing-page .btn-primary {
+  background: #F9D523;
+  color: #24282D;
+  box-shadow: 0 4px 14px 0 rgba(249, 213, 35, 0.4);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, background 0.25s ease;
 }
 
 .landing-page .btn-primary:hover:not(:disabled) {
+  background: #F0CA10;
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px -8px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 12px 28px -8px rgba(249, 213, 35, 0.5);
 }
 
 .landing-page .btn-primary:active:not(:disabled) {
@@ -207,7 +174,7 @@ header .brandLanding strong span,
 }
 
 .landing-page .btn-text:hover {
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(0, 158, 255, 0.08);
   transform: translateY(-1px);
 }
 
@@ -266,7 +233,7 @@ header .brandLanding strong span,
 /* Hero glow removed – single page gradient above keeps background smooth */
 
 .hero h1 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4.25rem);
   font-weight: 800;
   line-height: 1.22;
@@ -286,29 +253,9 @@ header .brandLanding strong span,
 }
 
 .h1-highlight {
-  background: linear-gradient(135deg, var(--primary) 0%, #60A5FA 50%, #93C5FD 100%);
-  background-size: 200% auto;
-  background-position: 0% 50%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #8E98A3;
   display: inline-block;
   position: relative;
-  animation: gradientShift 6s ease infinite;
-}
-
-.h1-highlight::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5px;
-  height: 30%;
-  background: var(--primary);
-  filter: blur(25px);
-  opacity: 0.25;
-  z-index: -1;
-  border-radius: 50%;
 }
 
 .hero .subtitle {
@@ -356,7 +303,7 @@ header .brandLanding strong span,
 
 .step-dot.active {
   width: 28px;
-  background: var(--primary);
+  background: #F9D523;
   animation: stepDotActive 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -392,8 +339,8 @@ header .brandLanding strong span,
 .card-form:hover {
   transform: translateY(-4px);
   box-shadow:
-    0 40px 80px -16px rgba(37, 99, 235, 0.15),
-    0 0 0 1px rgba(37, 99, 235, 0.08);
+    0 40px 80px -16px rgba(0, 158, 255, 0.15),
+    0 0 0 1px rgba(0, 158, 255, 0.08);
 }
 
 .step {
@@ -426,7 +373,7 @@ header .brandLanding strong span,
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(249, 213, 35, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -435,7 +382,7 @@ header .brandLanding strong span,
 
 .checking-icon {
   font-size: 1.75rem !important;
-  color: var(--primary);
+  color: #F9D523;
   animation: checkingSpin 1.5s linear infinite;
 }
 
@@ -468,7 +415,7 @@ header .brandLanding strong span,
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--primary);
+  background: #F9D523;
   opacity: 0.4;
   animation: checkingDot 1.4s ease-in-out infinite both;
 }
@@ -494,8 +441,8 @@ header .brandLanding strong span,
 }
 
 .input-group:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  border-color: #F9D523;
+  box-shadow: 0 4px 12px rgba(249, 213, 35, 0.18);
   transform: translateY(-1px);
 }
 
@@ -550,15 +497,15 @@ select.vehicle-input:disabled {
 }
 
 .card-form .vehicle-input:hover {
-  border-color: rgba(37, 99, 235, 0.4);
-  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+  border-color: rgba(249, 213, 35, 0.5);
+  box-shadow: 0 2px 12px rgba(249, 213, 35, 0.1);
   transform: translateY(-1px);
 }
 
 .vehicle-input:focus {
-  border-color: var(--primary);
+  border-color: #F9D523;
   background: var(--bg-card);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 4px rgba(249, 213, 35, 0.15);
 }
 
 /* Searchable Select Dropdown Styles */
@@ -567,9 +514,9 @@ select.vehicle-input:disabled {
 }
 
 .searchable-select .vehicle-input:focus {
-  border-color: var(--primary);
+  border-color: #F9D523;
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(249, 213, 35, 0.12);
 }
 
 /* Custom scrollbar for dropdown */
@@ -658,7 +605,7 @@ select.vehicle-input:disabled {
 
 .dashboard-mockup:hover {
   transform: rotateX(0) scale(1.02);
-  box-shadow: 0 36px 72px -16px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 36px 72px -16px rgba(0, 158, 255, 0.22);
 }
 
 .mock-nav {
@@ -771,7 +718,7 @@ select.vehicle-input:disabled {
   text-align: center;
   margin-bottom: 3rem;
   margin-top: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -801,9 +748,9 @@ select.vehicle-input:disabled {
 .feature-item:hover {
   transform: translateY(-8px);
   box-shadow:
-    0 40px 80px -16px rgba(37, 99, 235, 0.15),
-    0 0 0 1px rgba(37, 99, 235, 0.08);
-  border-color: rgba(37, 99, 235, 0.12);
+    0 40px 80px -16px rgba(0, 218, 144, 0.18),
+    0 0 0 1px rgba(0, 218, 144, 0.1);
+  border-color: rgba(0, 218, 144, 0.15);
 }
 
 .f-icon-wrap {
@@ -813,19 +760,19 @@ select.vehicle-input:disabled {
   width: 64px;
   height: 64px;
   border-radius: 20px;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(0, 218, 144, 0.12);
   margin-bottom: 1.25rem;
   transition: background 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .feature-item:hover .f-icon-wrap {
-  background: rgba(37, 99, 235, 0.18);
+  background: rgba(0, 218, 144, 0.2);
   transform: scale(1.05);
 }
 
 .f-icon {
   font-size: 2.25rem;
-  color: var(--primary);
+  color: #00DA90;
   display: block;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -844,7 +791,7 @@ select.vehicle-input:disabled {
 }
 
 .feature-item:hover h3 {
-  color: var(--primary);
+  color: #00DA90;
 }
 
 .feature-item p {
@@ -924,8 +871,8 @@ select.vehicle-input:disabled {
     gap: 0.75rem;
   }
 
-  .brandLanding {
-    font-size: 1.5rem;
+  .brand-logo {
+    height: 28px;
   }
 
   .header-actions {
@@ -1020,8 +967,8 @@ select.vehicle-input:disabled {
     gap: 0.5rem;
   }
 
-  .brandLanding {
-    font-size: 1.2rem;
+  .brand-logo {
+    height: 24px;
     min-width: 0;
   }
 
@@ -1136,8 +1083,8 @@ select.vehicle-input:disabled {
     gap: 0.35rem;
   }
 
-  .brandLanding {
-    font-size: 1.1rem;
+  .brand-logo {
+    height: 22px;
   }
 
   .header-actions {
@@ -1291,9 +1238,9 @@ select.vehicle-input:disabled {
   background:
     radial-gradient(
       ellipse 140% 100% at 50% 0%,
-      rgba(37, 99, 235, 0.07) 0%,
-      rgba(37, 99, 235, 0.03) 35%,
-      rgba(37, 99, 235, 0.01) 55%,
+      rgba(0, 158, 255, 0.07) 0%,
+      rgba(0, 158, 255, 0.03) 35%,
+      rgba(0, 158, 255, 0.01) 55%,
       transparent 72%
     ),
     rgba(243, 244, 246, 0.88);
@@ -1306,9 +1253,9 @@ select.vehicle-input:disabled {
     background:
       radial-gradient(
         ellipse 140% 100% at 50% 0%,
-        rgba(37, 99, 235, 0.08) 0%,
-        rgba(37, 99, 235, 0.04) 35%,
-        rgba(37, 99, 235, 0.02) 55%,
+        rgba(0, 158, 255, 0.08) 0%,
+        rgba(0, 158, 255, 0.04) 35%,
+        rgba(0, 158, 255, 0.02) 55%,
         transparent 72%
       ),
       rgba(15, 17, 21, 0.9);
@@ -1333,9 +1280,9 @@ select.vehicle-input:disabled {
   inset: 0;
   background: radial-gradient(
     ellipse 140% 100% at 50% 0%,
-    rgba(37, 99, 235, 0.07) 0%,
-    rgba(37, 99, 235, 0.03) 35%,
-    rgba(37, 99, 235, 0.01) 55%,
+    rgba(0, 158, 255, 0.07) 0%,
+    rgba(0, 158, 255, 0.03) 35%,
+    rgba(0, 158, 255, 0.01) 55%,
     transparent 72%
   );
   pointer-events: none;
@@ -1352,14 +1299,14 @@ select.vehicle-input:disabled {
 .modal-pro-success .pro-success-icon {
   width: 64px;
   height: 64px;
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(0, 158, 255, 0.12);
   color: var(--primary);
   border-radius: 50%;
   display: grid;
   place-items: center;
   margin: 0 auto 1.5rem auto;
   font-size: 2rem;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(0, 158, 255, 0.2);
 }
 
 .modal-pro-success .pro-success-title {
@@ -1399,6 +1346,19 @@ select.vehicle-input:disabled {
   font-size: 0.9rem;
   margin-bottom: 1rem;
   line-height: 1.5;
+}
+
+.modal-pro-success .btn-primary,
+.landing-page .modal-pro-success .btn-primary {
+  background: #009EFF !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px 0 rgba(0, 158, 255, 0.35) !important;
+}
+
+.modal-pro-success .btn-primary:hover:not(:disabled),
+.landing-page .modal-pro-success .btn-primary:hover:not(:disabled) {
+  background: #0090EE !important;
+  box-shadow: 0 8px 20px -6px rgba(0, 158, 255, 0.45) !important;
 }
 
 .modal-pro-success .btn-ghost {

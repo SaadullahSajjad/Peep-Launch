@@ -149,7 +149,7 @@ export default function ProWizard({
   return (
     <dialog ref={dialogRef} className="modal modal-wizard" id="modal-wizard">
       <div className="modal-header">
-        <h3 style={{ fontWeight: 700, fontSize: '1.1rem', color: 'white' }}>
+        <h3 style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-main)' }}>
           Shop Setup
         </h3>
         <span className="material-icons-round close-icon" onClick={handleClose}>
@@ -174,10 +174,10 @@ export default function ProWizard({
 
         {currentStep === 1 && (
           <div className="wizard-step active" id="w-step-1">
-            <h1 style={{ fontSize: '1.5rem', color: 'white', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.5rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>
               Location
             </h1>
-            <p style={{ color: '#94A3B8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
               Where do you operate?
             </p>
             <label className="form-label">Business Name</label>
@@ -206,7 +206,7 @@ export default function ProWizard({
 
         {currentStep === 2 && (
           <div className="wizard-step active" id="w-step-2">
-            <h1 style={{ fontSize: '1.5rem', color: 'white', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.5rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>
               Type
             </h1>
             <div className="type-grid">
@@ -244,7 +244,7 @@ export default function ProWizard({
 
         {currentStep === 3 && (
           <div className="wizard-step active" id="w-step-3">
-            <h1 style={{ fontSize: '1.5rem', color: 'white', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.5rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>
               Rates
             </h1>
             <label className="form-label">Hourly Rate</label>

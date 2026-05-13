@@ -7,7 +7,7 @@
   padding: 1.5rem;
   background: var(--bg-body);
   color: var(--text-main);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -30,17 +30,24 @@
 }
 
 .brandstatus {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  font-size: 1.75rem;
-  color: var(--text-main);
-  letter-spacing: -0.03em;
-  margin-bottom: 0.25rem;
-  display: inline-block;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: center;
 }
 
-.brandstatus span {
-  color: var(--primary);
+.status-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.logo-light-mode { display: block; }
+.logo-dark-mode  { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  .logo-light-mode { display: none; }
+  .logo-dark-mode  { display: block; }
 }
 
 .header-sub {
@@ -73,7 +80,7 @@
   font-size: 3.5rem;
   font-weight: 800;
   line-height: 1;
-  background: linear-gradient(135deg, var(--primary) 0%, #3B82F6 100%);
+  background: linear-gradient(135deg, #8E98A3 0%, #6B7580 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -202,7 +209,7 @@ p {
 }
 
 .link-input:focus {
-  border-color: var(--primary);
+  border-color: #8E98A3;
 }
 
 .btn-copy {

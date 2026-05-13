@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import logoLight from '../assets/images/Logo-light.png'
+import logoDark from '../assets/images/logo-dark.png'
 import { useSearchParams } from 'react-router-dom'
 import { apiService } from '../utils/api'
 import {
@@ -106,9 +108,9 @@ export default function StatusPage() {
       <div className="status-card">
         <div className="card-header">
           <div className="brandstatus">
-            Pee<span>peep</span>
+            <img src={logoDark} alt="Peepeep" className="status-logo logo-light-mode" />
+            <img src={logoLight} alt="Peepeep" className="status-logo logo-dark-mode" />
           </div>
-          <br />
           <div className="header-sub">
             <span
               className="material-icons-round"
@@ -140,7 +142,7 @@ export default function StatusPage() {
               <div className="vehicle-tag">
                 <span
                   className="material-icons-round"
-                  style={{ fontSize: '1.1rem', color: 'var(--primary)' }}
+                  style={{ fontSize: '1.1rem', color: '#8E98A3' }}
                 >
                   directions_car
                 </span>
@@ -163,7 +165,7 @@ export default function StatusPage() {
                 <div className="ref-title">
                   <span
                     className="material-icons-round"
-                    style={{ fontSize: '16px', color: 'var(--primary)' }}
+                    style={{ fontSize: '16px', color: '#8E98A3' }}
                   >
                     bolt
                   </span>

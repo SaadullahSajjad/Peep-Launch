@@ -200,11 +200,11 @@ export default function SearchableSelect({
                       cursor: 'pointer',
                       backgroundColor:
                         value === option.value
-                          ? 'var(--primary)'
+                          ? '#F9D523'
                           : 'transparent',
                       color:
                         value === option.value
-                          ? '#ffffff'
+                          ? '#24282D'
                           : 'var(--text-main)',
                       transition: 'background-color 0.15s',
                       textAlign: 'left',
@@ -235,8 +235,8 @@ export default function SearchableSelect({
                       padding: '8px 16px',
                       cursor: 'pointer',
                       backgroundColor:
-                        value === 'Other' ? 'var(--primary)' : 'transparent',
-                      color: value === 'Other' ? '#ffffff' : 'var(--primary)',
+                        value === 'Other' ? '#F9D523' : 'transparent',
+                      color: value === 'Other' ? '#24282D' : 'var(--text-muted)',
                       fontWeight: value === 'Other' ? 600 : 500,
                       borderTop: '1px solid var(--border)',
                       transition: 'background-color 0.15s',

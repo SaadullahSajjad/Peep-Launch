@@ -1,7 +1,7 @@
 /* --- DESIGN TOKENS --- */
 :root {
-  --primary: #2563EB;
-  --primary-hover: #1D4ED8;
+  --primary: #009EFF;
+  --primary-hover: #0090EE;
   --bg-body: #F3F4F6;
   --bg-card: #FFFFFF;
   --bg-subtle: #F9FAFB;
@@ -13,7 +13,7 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   --success-bg: #ECFDF5;
   --success-text: #059669;
-  --success: #10B981;
+  --success: #00DA90;
   --warning-bg: #FFFBEB;
   --warning-text: #B45309;
 
@@ -25,13 +25,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #3B82F6;
-    --bg-body: #0F1115;
-    --bg-card: #181B21;
-    --bg-subtle: #22252C;
+    --primary: #009EFF;
+    --bg-body: #1a1f24;
+    --bg-card: #24282D;
+    --bg-subtle: #2D3238;
     --text-main: #F9FAFB;
-    --text-muted: #9CA3AF;
-    --border: #2D3039;
+    --text-muted: #8E98A3;
+    --border: #3D4248;
     --warning-bg: rgba(245, 158, 11, 0.12);
     --warning-text: #FCD34D;
   }
@@ -42,7 +42,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 body {
@@ -52,6 +52,10 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sora', sans-serif;
 }
 
 button, select, input, textarea {
@@ -115,7 +119,7 @@ button, select, input, textarea {
 .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+  box-shadow: 0 4px 14px 0 rgba(0, 158, 255, 0.39);
 }
 
 .btn-primary:hover:not(:disabled) {

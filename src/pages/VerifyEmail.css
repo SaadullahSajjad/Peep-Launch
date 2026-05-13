@@ -76,7 +76,7 @@
 .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 158, 255, 0.25);
 }
 
 .btn-primary:hover {

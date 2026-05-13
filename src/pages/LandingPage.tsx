@@ -1,4 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
+import logoLight from '../assets/images/Logo-light.png'
+import logoDark from '../assets/images/logo-dark.png'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -316,10 +318,8 @@ export default function LandingPage() {
       <div className="container">
         <header ref={headerRef}>
           <a href="#" className="brand brandLanding" aria-label="Peepeep Home">
-            <strong>Pee<span>peep</span></strong>
-            <span className="brand-tooltip">
-              {language === 'en' ? 'Yes, really.' : 'Oui, vraiment.'}
-            </span>
+            <img src={logoDark} alt="Peepeep" className="brand-logo logo-light-mode" />
+            <img src={logoLight} alt="Peepeep" className="brand-logo logo-dark-mode" />
           </a>
 
           <div className="header-actions">
@@ -494,8 +494,8 @@ export default function LandingPage() {
                 <div className="card-form" style={{ textAlign: 'center' }}>
                   <div
                     style={{
-                      background: '#EFF6FF',
-                      color: 'var(--primary)',
+                      background: 'rgba(142, 152, 163, 0.12)',
+                      color: '#8E98A3',
                       display: 'inline-block',
                       padding: '6px 12px',
                       borderRadius: '20px',
@@ -504,7 +504,7 @@ export default function LandingPage() {
                       marginBottom: '1rem',
                     }}
                   >
-                    <span className="material-icons-round" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>
+                    <span className="material-icons-round" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px', color: '#8E98A3' }}>
                       check_circle
                     </span>
                     <span>

@@ -1,4 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react'
+import logoLight from '../assets/images/Logo-light.png'
+import logoDark from '../assets/images/logo-dark.png'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { apiService } from '../utils/api'
@@ -828,7 +830,10 @@ export default function ProfilePreview() {
       <div className={`overlay ${isSidebarOpen ? 'active' : ''}`} onClick={toggleSidebar}></div>
       <aside className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="brand-container">
-          <a href="/" className="brand"><span className="brand-text">Pee</span><span className="color">peep</span><span className="brand-badge">Pro</span></a>
+          <a href="/" className="brand">
+            <img src={logoDark} alt="Peepeep" className="brand-logo logo-light-mode" />
+            <img src={logoLight} alt="Peepeep" className="brand-logo logo-dark-mode" />
+          </a>
           <button className="lang-toggle" onClick={toggleLanguage}>
             {language === 'en' ? 'FR' : 'EN'}
           </button>
