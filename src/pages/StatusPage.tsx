@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import logoLight from '../assets/images/Logo-light.png'
-import logoDark from '../assets/images/logo-dark.png'
+import logoLight from '../assets/images/logo-light.png'
+import logoDark from '../assets/images/Logo-dark.png'
 import { useSearchParams } from 'react-router-dom'
 import { apiService } from '../utils/api'
 import {
