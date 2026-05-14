@@ -2,36 +2,38 @@
 :root {
   --primary: #009EFF;
   --primary-hover: #0090EE;
-  --bg-body: #F3F4F6;
+  --bg-body: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-subtle: #F9FAFB;
+  --bg-subtle: #FFFFFF;
   --text-main: #111827;
   --text-muted: #6B7280;
   --border: #E5E7EB;
   --radius: 12px;
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  --success-bg: #ECFDF5;
-  --success-text: #059669;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12);
+  --success-bg: rgba(0, 218, 144, 0.1);
+  --success-text: #00DA90;
   --success: #00DA90;
-  --warning-bg: #FFFBEB;
-  --warning-text: #B45309;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-text: #D97706;
 
   /* Pro Theme Tokens */
-  --pro-bg: #0F172A;
+  --pro-bg: #1a1f24;
   --pro-text: #F8FAFC;
   --pro-gold: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #009EFF;
-    --bg-body: #1a1f24;
-    --bg-card: #24282D;
-    --bg-subtle: #2D3238;
+    --bg-body: #24282D;
+    --bg-card: #2D3238;
+    --bg-subtle: #353b42;
     --text-main: #F9FAFB;
     --text-muted: #8E98A3;
     --border: #3D4248;
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    --success-bg: rgba(0, 218, 144, 0.12);
     --warning-bg: rgba(245, 158, 11, 0.12);
     --warning-text: #FCD34D;
   }

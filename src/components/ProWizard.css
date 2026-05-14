@@ -15,15 +15,9 @@
 
 @media (prefers-color-scheme: dark) {
   #modal-wizard::backdrop {
-    background:
-      radial-gradient(
-        ellipse 140% 100% at 50% 0%,
-        rgba(0, 158, 255, 0.08) 0%,
-        rgba(0, 158, 255, 0.04) 35%,
-        rgba(0, 158, 255, 0.02) 55%,
-        transparent 72%
-      ),
-      rgba(15, 17, 21, 0.9);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 
@@ -39,7 +33,7 @@
   animation: wizardSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Same soft blue gradient overlay as landing page */
+/* Subtle blue gradient overlay — light mode only */
 .modal-wizard::before {
   content: '';
   position: absolute;
@@ -53,6 +47,12 @@
   );
   pointer-events: none;
   z-index: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-wizard::before {
+    display: none;
+  }
 }
 
 @keyframes wizardSlideIn {
