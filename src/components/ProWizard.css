@@ -365,3 +365,27 @@
   color: var(--text-muted) !important;
 }
 
+/* ===== MANUAL DARK THEME OVERRIDES ===== */
+html[data-theme="dark"] #modal-wizard::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-theme="dark"] .modal-wizard::before { display: none; }
+
+/* ===== FORCED LIGHT MODE (override OS dark preference) ===== */
+html[data-theme="light"] #modal-wizard::backdrop {
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(0, 158, 255, 0.07) 0%,
+      rgba(0, 158, 255, 0.03) 35%,
+      rgba(0, 158, 255, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+html[data-theme="light"] .modal-wizard::before { display: block; }
+

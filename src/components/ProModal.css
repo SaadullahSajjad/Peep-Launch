@@ -86,7 +86,7 @@
 }
 
 .modal-brand-text h3 {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 1.05rem;
   font-weight: 800;
   color: #111827;
@@ -482,7 +482,7 @@
 }
 
 .pro-prompt-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   margin: 0 0 0.75rem 0;
@@ -549,3 +549,50 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+/* ===== MANUAL DARK THEME OVERRIDES ===== */
+html[data-theme="dark"] #modal-pro::backdrop { background: rgba(0, 0, 0, 0.6); }
+html[data-theme="dark"] .modal-pro {
+  background: #2d3238;
+  border-color: #3d4248;
+  color: #f9fafb;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+}
+html[data-theme="dark"] .modal-pro .modal-header { background: #2d3238; border-bottom-color: #3d4248; }
+html[data-theme="dark"] .modal-brand-text h3 { color: #f9fafb; }
+html[data-theme="dark"] .modal-brand-sub { color: #8e98a3; }
+html[data-theme="dark"] .close-icon:hover { color: #f9fafb; }
+html[data-theme="dark"] .pro-desc { color: #8e98a3; }
+html[data-theme="dark"] .form-label { color: #d1d5db; }
+html[data-theme="dark"] .form-control { background: #2d3238; color: #f9fafb; border-color: #3d4248; }
+html[data-theme="dark"] .form-control::placeholder { color: #6b7280; }
+html[data-theme="dark"] .form-control:focus { background: #353b42; border-color: #009eff; }
+html[data-theme="dark"] .auth-divider::before,
+html[data-theme="dark"] .auth-divider::after { background: #2d3340; }
+html[data-theme="dark"] .btn-google { background: #2d3238 !important; border-color: #3d4248 !important; color: #f9fafb !important; }
+html[data-theme="dark"] .btn-google:hover:not(:disabled) { background: #353b42 !important; }
+html[data-theme="dark"] .pro-processing .pro-text { color: #f9fafb; }
+html[data-theme="dark"] .pro-prompt-backdrop { background: rgba(0, 0, 0, 0.6); }
+html[data-theme="dark"] .pro-prompt-card { background: #24282d; border-color: #3d4248; color: #f9fafb; }
+html[data-theme="dark"] .pro-prompt-desc { color: #8e98a3; }
+
+/* ===== FORCED LIGHT MODE (override OS dark preference) ===== */
+html[data-theme="light"] #modal-pro::backdrop { background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+html[data-theme="light"] .modal-pro { background: #ffffff; border-color: #e5e7eb; color: #111827; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.18); }
+html[data-theme="light"] .modal-pro .modal-header { background: #ffffff; border-bottom-color: #f3f4f6; }
+html[data-theme="light"] .modal-brand-text h3 { color: #111827; }
+html[data-theme="light"] .modal-brand-sub { color: #6b7280; }
+html[data-theme="light"] .close-icon:hover { color: #374151; }
+html[data-theme="light"] .pro-desc { color: #6b7280; }
+html[data-theme="light"] .form-label { color: #374151; }
+html[data-theme="light"] .form-control { background: #f3f4f6; color: #111827; border-color: transparent; }
+html[data-theme="light"] .form-control::placeholder { color: #9ca3af; }
+html[data-theme="light"] .form-control:focus { background: #ffffff; border-color: #009eff; box-shadow: 0 0 0 3px rgba(0,158,255,0.12); }
+html[data-theme="light"] .auth-divider::before,
+html[data-theme="light"] .auth-divider::after { background: #e5e7eb; }
+html[data-theme="light"] .btn-google { background: #ffffff !important; border-color: #e5e7eb !important; color: #374151 !important; }
+html[data-theme="light"] .btn-google:hover:not(:disabled) { background: #f9fafb !important; border-color: #d1d5db !important; }
+html[data-theme="light"] .pro-processing .pro-text { color: #111827; }
+html[data-theme="light"] .pro-prompt-backdrop { background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+html[data-theme="light"] .pro-prompt-card { background: #ffffff; border-color: #e5e7eb; color: #111827; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+html[data-theme="light"] .pro-prompt-desc { color: #6b7280; }

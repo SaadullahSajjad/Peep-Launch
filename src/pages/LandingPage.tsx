@@ -33,6 +33,20 @@ export default function LandingPage() {
   const t = useTranslations(language);
   const { showToast } = useToast();
 
+  // Theme toggle
+  const [theme, setTheme] = useState<"light" | "dark">(
+    () =>
+      (document.documentElement.getAttribute("data-theme") as
+        | "light"
+        | "dark") || "light",
+  );
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("ppe_theme", next);
+  };
+
   // Get referral code from URL parameter
   const referralCodeFromUrl = searchParams.get("ref") || null;
 
@@ -374,19 +388,26 @@ export default function LandingPage() {
           </a>
 
           <div className="header-actions">
-            {/* <button
-              type="button"
-              className="btn-text"
-              onClick={() => setIsContactOpen(true)}
-            >
-              {t('nav_privacy')}
-            </button> */}
             <button
               type="button"
               className="btn-text"
               onClick={() => setIsProOpen(true)}
             >
               {t("nav_pro")}
+            </button>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={
+                theme === "light"
+                  ? "Switch to dark mode"
+                  : "Switch to light mode"
+              }
+            >
+              <span className="material-icons-round">
+                {theme === "light" ? "dark_mode" : "light_mode"}
+              </span>
             </button>
             <button
               className="lang-discreet"
@@ -791,7 +812,11 @@ export default function LandingPage() {
           </div>
 
           <div className="preview-container" ref={previewRef}>
-            <div className="sneak-peek-label">{t("sneak_peek")}</div>
+            <div className="sneak-peek-label">
+              <span className="sneak-peek-word1">{t("sneak_peek_1")}</span>{" "}
+              <span className="sneak-peek-word2">{t("sneak_peek_2")}</span>
+            </div>
+            <p className="sneak-peek-sub">{t("sneak_peek_sub")}</p>
             <div className="dashboard-mockup">
               {/* Browser chrome */}
               <div className="mock-nav">
@@ -1059,39 +1084,112 @@ export default function LandingPage() {
         <div className="container">
           <h2 className="features-title">{t("features_title")}</h2>
           <div className="feature-grid">
-            <div className="feature-item">
-              <span className="f-icon-wrap">
-                <span className="material-icons-round f-icon">savings</span>
-              </span>
+            <div className="feature-item feature-logo-card">
+              <img
+                src={logoIconDark}
+                alt="Peepeep"
+                className="feature-brand-logo"
+              />
+            </div>
+            <div className="feature-item feature-stat-card">
+              <span className="material-icons-round f-icon">show_chart</span>
               <h3>{t("feat1_title")}</h3>
-              <p>{t("feat1_desc")}</p>
+              <p className="forPadding">{t("feat1_desc")}</p>
             </div>
-            <div className="feature-item">
-              <span className="f-icon-wrap">
-                <span className="material-icons-round f-icon">
-                  monetization_on
-                </span>
-              </span>
+            <div className="feature-item feature-stat-card">
+              <span className="material-icons-round f-icon">sell</span>
               <h3>{t("feat2_title")}</h3>
-              <p>{t("feat2_desc")}</p>
+              <p className="forPadding">{t("feat2_desc")}</p>
             </div>
-            <div className="feature-item">
-              <span className="f-icon-wrap">
-                <span className="material-icons-round f-icon">verified</span>
-              </span>
+            <div className="feature-item feature-stat-card">
+              <span className="material-icons-round f-icon">verified_user</span>
               <h3>{t("feat3_title")}</h3>
-              <p>{t("feat3_desc")}</p>
+              <p className="forPadding">{t("feat3_desc")}</p>
             </div>
           </div>
         </div>
       </section>
 
       <footer className="site-footer">
-        <div className="container">
-          <p className="footer-copy">
-            © 2025 Peepeep Inc.{" "}
-            <span className="footer-tag">{t("footer_tag")}</span>
-          </p>
+        <div className="footer-watermark" aria-hidden="true">
+          <span className="footer-watermark-text">
+            Compare&nbsp;&nbsp;&nbsp;Connect&nbsp;&nbsp;Repair
+          </span>
+          <span className="footer-dot footer-dot-grey" />
+          <span className="footer-dot footer-dot-yellow" />
+          <span className="footer-dot footer-dot-blue" />
+        </div>
+        <div className="footer-bottom">
+          <div className="container">
+            <div className="footer-bottom-inner">
+              <p className="footer-copy">
+                © 2026 Peepeep Inc. Made with{" "}
+                <span className="footer-heart">♥</span> in Montreal.
+              </p>
+              <div className="footer-social">
+                <a
+                  href="https://www.facebook.com/people/Peepeep/61583160867114/"
+                  className="footer-social-link"
+                  aria-label="Facebook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="footer-social-icon"
+                  >
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://x.com/Peepeep_app"
+                  className="footer-social-link"
+                  aria-label="X"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="footer-social-icon"
+                  >
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.tiktok.com/@peepeep_auto?lang=en"
+                  className="footer-social-link"
+                  aria-label="TikTok"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="footer-social-icon"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.22 8.22 0 004.86 1.55V6.79a4.85 4.85 0 01-1.09-.1z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.instagram.com/peepeep__?igsh=YWg3YjN1ZnN3cnJ0"
+                  className="footer-social-link"
+                  aria-label="Instagram"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="footer-social-icon"
+                  >
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
 

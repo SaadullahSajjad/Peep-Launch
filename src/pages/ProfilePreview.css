@@ -104,7 +104,7 @@
 .profile-preview-page h2,
 .profile-preview-page h3,
 .profile-preview-page .brand {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .profile-preview-page button {
@@ -251,7 +251,7 @@
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
   line-height: 1.2;
   flex-shrink: 0;
   white-space: nowrap;
@@ -441,7 +441,7 @@
 
 /* Page title – same shadow as “The Future of Car Repair” hero */
 .page-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
   font-weight: 800;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   letter-spacing: -0.03em;
@@ -1025,7 +1025,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 4px;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: 'Sora', sans-serif;
   color: var(--phone-text);
 }
 
@@ -2038,4 +2038,145 @@
   .input-group-icon input.form-control {
     padding-left: 2.5rem;
   }
+}
+
+/* ===== MANUAL THEME CLASS OVERRIDES ===== */
+html[data-theme="dark"] {
+  --primary: #009eff;
+  --primary-hover: #40b8ff;
+  --bg-body: #0f1115;
+  --bg-card: #181b21;
+  --bg-subtle: #22252c;
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --border: #2d3039;
+  --sidebar-bg: #0b0f19;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --success-text: #34d399;
+  --warn-bg: rgba(245, 158, 11, 0.15);
+  --warn-text: #fbbf24;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --danger-text: #ef4444;
+  --info-bg: rgba(59, 130, 246, 0.15);
+  --info-text: #40b8ff;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --phone-bg: #020617;
+  --phone-text: #f8fafc;
+  --phone-card-bg: #1e293b;
+  --phone-pill-bg: #334155;
+  --phone-pill-text: #e2e8f0;
+  --bezel-color: #0f172a;
+}
+html[data-theme="dark"] .logo-light-mode { display: none; }
+html[data-theme="dark"] .logo-dark-mode { display: block; }
+html[data-theme="light"] .logo-light-mode { display: block; }
+html[data-theme="light"] .logo-dark-mode { display: none; }
+html[data-theme="dark"] .profile-canvas.is-founding .provider-hero {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+}
+html[data-theme="dark"] #modal-login::backdrop {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme="dark"] .profile-preview-page .modal-login::before { display: none; }
+html[data-theme="dark"] .profile-preview-page #modal-login[open]::backdrop {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme="dark"] #modal-edit::backdrop {
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(0, 158, 255, 0.08) 0%,
+    rgba(0, 158, 255, 0.04) 35%,
+    rgba(0, 158, 255, 0.02) 55%,
+    transparent 72%
+  ), rgba(15, 17, 21, 0.9) !important;
+}
+html[data-theme="dark"] .btn-google {
+  background: #2d3238 !important;
+  border-color: #3d4248 !important;
+  color: #f9fafb !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .btn-google:hover:not(:disabled) {
+  background: #353b42 !important;
+  border-color: #4a5059 !important;
+  box-shadow: none !important;
+}
+
+/* ===== FORCED LIGHT MODE (override OS dark preference) ===== */
+html[data-theme="light"] {
+  --primary: #009eff;
+  --primary-hover: #0090ee;
+  --bg-body: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-subtle: #f9fafb;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --sidebar-bg: #111827;
+  --success-bg: #ecfdf5;
+  --success-text: #059669;
+  --warn-bg: #fffbeb;
+  --warn-text: #d97706;
+  --danger-bg: #fef2f2;
+  --danger-text: #dc2626;
+  --info-bg: #eff6ff;
+  --info-text: #009eff;
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --phone-bg: #ffffff;
+  --phone-text: #111827;
+  --phone-card-bg: #f8fafc;
+  --phone-pill-bg: #f1f5f9;
+  --phone-pill-text: #475569;
+  --bezel-color: #1e293b;
+}
+html[data-theme="light"] .profile-canvas.is-founding .provider-hero {
+  background: linear-gradient(135deg, var(--bg-subtle), var(--border));
+}
+html[data-theme="light"] #modal-login::backdrop {
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(0, 158, 255, 0.07) 0%,
+    rgba(0, 158, 255, 0.03) 35%,
+    rgba(0, 158, 255, 0.01) 55%,
+    transparent 72%
+  ), rgba(243, 244, 246, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+html[data-theme="light"] .profile-preview-page .modal-login::before { display: block; }
+html[data-theme="light"] .profile-preview-page #modal-login[open]::backdrop {
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(0, 158, 255, 0.07) 0%,
+    rgba(0, 158, 255, 0.03) 35%,
+    rgba(0, 158, 255, 0.01) 55%,
+    transparent 72%
+  ), rgba(243, 244, 246, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+html[data-theme="light"] #modal-edit::backdrop {
+  background: radial-gradient(
+    ellipse 140% 100% at 50% 0%,
+    rgba(0, 158, 255, 0.07) 0%,
+    rgba(0, 158, 255, 0.03) 35%,
+    rgba(0, 158, 255, 0.01) 55%,
+    transparent 72%
+  ), rgba(243, 244, 246, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+html[data-theme="light"] .btn-google {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+  box-shadow: unset !important;
+}
+html[data-theme="light"] .btn-google:hover:not(:disabled) {
+  background: #f9fafb !important;
+  border-color: #d1d5db !important;
 }

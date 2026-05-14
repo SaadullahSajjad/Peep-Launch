@@ -1001,7 +1001,7 @@ export default function ProfilePreview() {
               )}
             </div>
             
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', fontFamily: "'Sora', sans-serif", marginBottom: '0.25rem' }}>
               {profileData.rate}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2rem' }}>
@@ -1255,12 +1255,12 @@ export default function ProfilePreview() {
           <div className="modal-body" style={{ textAlign: 'center' }}>
             {!downloadSuccess ? (
               <>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '1rem', color: 'var(--text-main)' }}>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", marginBottom: '1rem', color: 'var(--text-main)' }}>
                   Official Partner 2025
                 </h2>
                 <div className="badge-preview" ref={badgePreviewRef}>
                   <span className="material-icons-round" style={{ fontSize: '3rem', color: '#F59E0B', marginBottom: '0.5rem' }}>verified</span>
-                  <div style={{ fontWeight: 800, fontSize: '1.2rem', fontFamily: "'Plus Jakarta Sans', sans-serif", color: 'white' }}>Peepeep Pro</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.2rem', fontFamily: "'Sora', sans-serif", color: 'white' }}>Peepeep Pro</div>
                   <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '4px' }}>FOUNDING PARTNER</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: '1rem', color: 'white' }}>{profileData.name}</div>
                 </div>
@@ -1300,7 +1300,7 @@ export default function ProfilePreview() {
                 }}>
                   <span className="material-icons-round" style={{ fontSize: '2rem' }}>check</span>
                 </div>
-                <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: '0.5rem', color: 'var(--text-main)' }}>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", marginBottom: '0.5rem', color: 'var(--text-main)' }}>
                   {t('share_success_title')}
                 </h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>

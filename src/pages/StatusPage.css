@@ -7,7 +7,7 @@
   padding: 1.5rem;
   background: var(--bg-body);
   color: var(--text-main);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .queue-label {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 0.9rem;
   color: var(--text-muted);
   font-weight: 600;
@@ -76,7 +76,7 @@
 }
 
 .queue-num {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 3.5rem;
   font-weight: 800;
   line-height: 1;
@@ -92,7 +92,7 @@
 }
 
 h2 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
@@ -132,7 +132,7 @@ p {
   font-size: 0.75rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .progress-track {
@@ -173,7 +173,7 @@ p {
 }
 
 .ref-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   margin-bottom: 0.25rem;
@@ -345,6 +345,22 @@ p {
     padding: 0.65rem;
     font-size: 0.8rem;
   }
+}
+
+/* ===== MANUAL THEME CLASS OVERRIDES ===== */
+html[data-theme="dark"] .logo-light-mode { display: none; }
+html[data-theme="dark"] .logo-dark-mode { display: block; }
+html[data-theme="light"] .logo-light-mode { display: block; }
+html[data-theme="light"] .logo-dark-mode { display: none; }
+html[data-theme="dark"] .btn-social.x:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+html[data-theme="light"] .btn-social.x:hover {
+  color: #000000;
+  border-color: #000000;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 480px) {

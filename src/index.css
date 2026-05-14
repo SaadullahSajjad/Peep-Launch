@@ -39,12 +39,41 @@
   }
 }
 
+/* --- MANUAL THEME OVERRIDES (class-based, override OS preference) --- */
+html[data-theme="dark"] {
+  --bg-body: #24282D;
+  --bg-card: #2D3238;
+  --bg-subtle: #353b42;
+  --text-main: #F9FAFB;
+  --text-muted: #8E98A3;
+  --border: #3D4248;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  --success-bg: rgba(0, 218, 144, 0.12);
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-text: #FCD34D;
+}
+
+html[data-theme="light"] {
+  --bg-body: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #FFFFFF;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12);
+  --success-bg: rgba(0, 218, 144, 0.1);
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-text: #D97706;
+}
+
 /* --- BASE STYLES --- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 body {
@@ -56,9 +85,6 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Sora', sans-serif;
-}
 
 button, select, input, textarea {
   font-family: inherit;
@@ -158,6 +184,35 @@ button, select, input, textarea {
 
 .btn-text:hover {
   color: var(--primary);
+}
+
+/* --- THEME TOGGLE --- */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.theme-toggle:hover {
+  background: rgba(0, 158, 255, 0.08);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.theme-toggle .material-icons-round {
+  font-size: 17px !important;
+  line-height: 1;
 }
 
 /* --- LANGUAGE TOGGLE --- */
