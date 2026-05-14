@@ -71,13 +71,32 @@
 .modal-brand-icon {
   width: 44px;
   height: 44px;
-  background: #1a1d21;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
+
+/* Light mode: dark background + light icon */
+.modal-brand-icon--light {
+  background: #1a1d21;
+  display: flex;
+}
+.modal-brand-icon--dark {
+  background: #ffffff;
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-brand-icon--light { display: none; }
+  .modal-brand-icon--dark  { display: flex; }
+}
+
+html[data-theme="dark"] .modal-brand-icon--light { display: none; }
+html[data-theme="dark"] .modal-brand-icon--dark  { display: flex; }
+html[data-theme="light"] .modal-brand-icon--light { display: flex; }
+html[data-theme="light"] .modal-brand-icon--dark  { display: none; }
 
 .modal-brand-img {
   width: 28px;

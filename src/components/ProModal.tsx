@@ -4,6 +4,7 @@ import { useTranslations } from '../utils/i18n'
 import { useToast } from '../contexts/ToastContext'
 import { initializeGoogleAuth, triggerGoogleSignIn, type GoogleUserInfo } from '../utils/googleOAuth'
 import logoIconLight from '../assets/images/logo-icon-light.png'
+import logoIconDark from '../assets/images/logo-icon-dark.png'
 import './ProModal.css'
 
 interface ProModalProps {
@@ -203,8 +204,11 @@ export default function ProModal({
     <dialog ref={dialogRef} className="modal modal-pro" id="modal-pro">
       <div className="modal-header">
         <div className="modal-brand">
-          <div className="modal-brand-icon">
+          <div className="modal-brand-icon modal-brand-icon--light">
             <img src={logoIconLight} alt="Peepeep" className="modal-brand-img" />
+          </div>
+          <div className="modal-brand-icon modal-brand-icon--dark">
+            <img src={logoIconDark} alt="Peepeep" className="modal-brand-img" />
           </div>
           <div className="modal-brand-text">
             <h3>Peepeep <span className="pro-badge">PRO</span></h3>
