@@ -1,18 +1,28 @@
 import { useEffect, useState } from "react";
-import car1 from "../assets/images/car1.png";
+import car1 from "../assets/images/car1.jpg";
 import car2 from "../assets/images/car2.jpg";
 import car3 from "../assets/images/car3.jpg";
 import car4 from "../assets/images/car4.jpg";
+import car5 from "../assets/images/car5.jpg";
+import car6 from "../assets/images/car6.jpg";
+import car7 from "../assets/images/car7.jpg";
+import car8 from "../assets/images/car8.jpg";
+import car9 from "../assets/images/car9.jpg";
+import car10 from "../assets/images/car10.jpg";
 import mech1 from "../assets/images/mechanic1.jpg";
 import mech2 from "../assets/images/mechanic2.jpg";
 import mech3 from "../assets/images/mechanic3.png";
 import mech4 from "../assets/images/mechanic4.jpg";
 import mech5 from "../assets/images/mechanic5.jpg";
 import mech6 from "../assets/images/mechanic6.jpg";
+import mech7 from "../assets/images/mechanic7.jpg";
+import mech8 from "../assets/images/mechanic8.jpg";
+import mech9 from "../assets/images/mechanic9.jpg";
+import mech10 from "../assets/images/mechanic10.jpg";
 import "./HeroSnakeAnimation.css";
 
-const CAR_IMGS = [car1, car2, car3, car4];
-const MECH_IMGS = [mech1, mech2, mech3, mech4, mech5, mech6];
+const CAR_IMGS = [car1, car2, car3, car4, car5, car6, car7, car8, car9, car10];
+const MECH_IMGS = [mech1, mech2, mech3, mech4, mech5, mech6, mech7, mech8, mech9, mech10];
 
 type Phase = "idle" | "yellow" | "blue" | "drawing" | "cycling";
 
@@ -62,17 +72,18 @@ export default function HeroSnakeAnimation() {
         setTimeout(() => {
           if (!alive) return;
           setPhase("cycling");
+          // 10 images, ~1500ms each fits within the remaining ~18s
           cycleTimer = setInterval(() => {
             if (!alive) return;
             setCarIdx((i) => (i + 1) % CAR_IMGS.length);
             setMechIdx((i) => (i + 1) % MECH_IMGS.length);
-          }, 2000);
-        }, 4200),
+          }, 1500);
+        }, 3000),
       );
     };
 
     go();
-    const loop = setInterval(go, 10000);
+    const loop = setInterval(go, 20000);
 
     return () => {
       alive = false;

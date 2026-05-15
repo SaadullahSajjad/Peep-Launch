@@ -391,10 +391,13 @@ export default function LandingPage() {
           <div className="header-actions">
             <button
               type="button"
-              className="btn-text"
+              className="btn-nav-pro"
               onClick={() => setIsProOpen(true)}
             >
               {t("nav_pro")}
+              <span className="btn-nav-pro-icon">
+                <span className="material-icons-round" style={{ fontSize: '0.8rem' }}>north_east</span>
+              </span>
             </button>
             <button
               type="button"

@@ -37,7 +37,7 @@
 .hsa-path {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: hsaDraw 2.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+  animation: hsaDraw 1.2s cubic-bezier(0.45, 0, 0.55, 1) forwards;
 }
 
 @keyframes hsaDraw {

@@ -281,6 +281,43 @@ header {
   transform: translateY(-1px);
 }
 
+/* PRO pill button */
+.btn-nav-pro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1.5px solid #009eff;
+  padding: 0.25rem 0.25rem 0.25rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #009eff;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+  white-space: nowrap;
+}
+
+.btn-nav-pro:hover {
+  background: rgba(0, 158, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.btn-nav-pro-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1.5px solid #009eff;
+  flex-shrink: 0;
+  color: #009eff;
+}
+
 .badge-limited .material-icons-round {
   font-size: 1rem;
   color: #f5c71d;
