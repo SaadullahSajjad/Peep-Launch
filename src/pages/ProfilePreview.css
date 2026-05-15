@@ -104,7 +104,7 @@
 .profile-preview-page h2,
 .profile-preview-page h3,
 .profile-preview-page .brand {
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
 }
 
 .profile-preview-page button {
@@ -251,7 +251,7 @@
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
   line-height: 1.2;
   flex-shrink: 0;
   white-space: nowrap;
@@ -441,7 +441,7 @@
 
 /* Page title – same shadow as “The Future of Car Repair” hero */
 .page-title {
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
   font-weight: 800;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   letter-spacing: -0.03em;
@@ -1025,7 +1025,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 4px;
-  font-family: 'Sora', sans-serif;
+  font-family: "Sora", sans-serif;
   color: var(--phone-text);
 }
 
@@ -1580,7 +1580,7 @@
   background: #ffffff !important;
   border: 1px solid #dadce0 !important;
   color: #3c4043 !important;
-  font-weight: 700 !important;
+  font-weight: 100 !important;
   font-size: 1rem !important;
   padding: 0.85rem 1.25rem !important;
   border-radius: 12px !important;
@@ -2067,10 +2067,18 @@ html[data-theme="dark"] {
   --phone-pill-text: #e2e8f0;
   --bezel-color: #0f172a;
 }
-html[data-theme="dark"] .logo-light-mode { display: none; }
-html[data-theme="dark"] .logo-dark-mode { display: block; }
-html[data-theme="light"] .logo-light-mode { display: block; }
-html[data-theme="light"] .logo-dark-mode { display: none; }
+html[data-theme="dark"] .logo-light-mode {
+  display: none;
+}
+html[data-theme="dark"] .logo-dark-mode {
+  display: block;
+}
+html[data-theme="light"] .logo-light-mode {
+  display: block;
+}
+html[data-theme="light"] .logo-dark-mode {
+  display: none;
+}
 html[data-theme="dark"] .profile-canvas.is-founding .provider-hero {
   background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
 }
@@ -2079,20 +2087,24 @@ html[data-theme="dark"] #modal-login::backdrop {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-html[data-theme="dark"] .profile-preview-page .modal-login::before { display: none; }
+html[data-theme="dark"] .profile-preview-page .modal-login::before {
+  display: none;
+}
 html[data-theme="dark"] .profile-preview-page #modal-login[open]::backdrop {
   background: rgba(0, 0, 0, 0.7) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 html[data-theme="dark"] #modal-edit::backdrop {
-  background: radial-gradient(
-    ellipse 140% 100% at 50% 0%,
-    rgba(0, 158, 255, 0.08) 0%,
-    rgba(0, 158, 255, 0.04) 35%,
-    rgba(0, 158, 255, 0.02) 55%,
-    transparent 72%
-  ), rgba(15, 17, 21, 0.9) !important;
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(0, 158, 255, 0.08) 0%,
+      rgba(0, 158, 255, 0.04) 35%,
+      rgba(0, 158, 255, 0.02) 55%,
+      transparent 72%
+    ),
+    rgba(15, 17, 21, 0.9) !important;
 }
 html[data-theme="dark"] .btn-google {
   background: #2d3238 !important;
@@ -2137,36 +2149,44 @@ html[data-theme="light"] .profile-canvas.is-founding .provider-hero {
   background: linear-gradient(135deg, var(--bg-subtle), var(--border));
 }
 html[data-theme="light"] #modal-login::backdrop {
-  background: radial-gradient(
-    ellipse 140% 100% at 50% 0%,
-    rgba(0, 158, 255, 0.07) 0%,
-    rgba(0, 158, 255, 0.03) 35%,
-    rgba(0, 158, 255, 0.01) 55%,
-    transparent 72%
-  ), rgba(243, 244, 246, 0.88) !important;
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(0, 158, 255, 0.07) 0%,
+      rgba(0, 158, 255, 0.03) 35%,
+      rgba(0, 158, 255, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
   backdrop-filter: blur(6px) !important;
   -webkit-backdrop-filter: blur(6px) !important;
 }
-html[data-theme="light"] .profile-preview-page .modal-login::before { display: block; }
+html[data-theme="light"] .profile-preview-page .modal-login::before {
+  display: block;
+}
 html[data-theme="light"] .profile-preview-page #modal-login[open]::backdrop {
-  background: radial-gradient(
-    ellipse 140% 100% at 50% 0%,
-    rgba(0, 158, 255, 0.07) 0%,
-    rgba(0, 158, 255, 0.03) 35%,
-    rgba(0, 158, 255, 0.01) 55%,
-    transparent 72%
-  ), rgba(243, 244, 246, 0.88) !important;
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(0, 158, 255, 0.07) 0%,
+      rgba(0, 158, 255, 0.03) 35%,
+      rgba(0, 158, 255, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
   backdrop-filter: blur(6px) !important;
   -webkit-backdrop-filter: blur(6px) !important;
 }
 html[data-theme="light"] #modal-edit::backdrop {
-  background: radial-gradient(
-    ellipse 140% 100% at 50% 0%,
-    rgba(0, 158, 255, 0.07) 0%,
-    rgba(0, 158, 255, 0.03) 35%,
-    rgba(0, 158, 255, 0.01) 55%,
-    transparent 72%
-  ), rgba(243, 244, 246, 0.88) !important;
+  background:
+    radial-gradient(
+      ellipse 140% 100% at 50% 0%,
+      rgba(0, 158, 255, 0.07) 0%,
+      rgba(0, 158, 255, 0.03) 35%,
+      rgba(0, 158, 255, 0.01) 55%,
+      transparent 72%
+    ),
+    rgba(243, 244, 246, 0.88) !important;
   backdrop-filter: blur(6px) !important;
   -webkit-backdrop-filter: blur(6px) !important;
 }

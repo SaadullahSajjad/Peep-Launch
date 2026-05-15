@@ -22,6 +22,7 @@ import ContactModal from "../components/ContactModal";
 import ProModal from "../components/ProModal";
 import ProWizard from "../components/ProWizard";
 import SearchableSelect from "../components/SearchableSelect";
+import HeroSnakeAnimation from "../components/HeroSnakeAnimation";
 import "./LandingPage.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -433,12 +434,12 @@ export default function LandingPage() {
           <p ref={subtitleRef} className="subtitle">
             {t("hero_subtitle")}
           </p>
-
           <div
             className="form-container"
             ref={formContainerRef}
             id="main-form-container"
           >
+            <HeroSnakeAnimation />
             <div className="progress-steps">
               <div
                 className={`step-dot ${currentStep >= 1 ? (currentStep > 1 ? "completed" : "active") : ""}`}
@@ -531,6 +532,8 @@ export default function LandingPage() {
                           {t("badge_limited")}
                         </span>
                       </div>
+
+                      <hr className="card-divider" />
 
                       <form onSubmit={handleVehicleCheck}>
                         <label className="form-label-left">

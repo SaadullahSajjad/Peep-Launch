@@ -5,6 +5,7 @@ import { useToast } from '../contexts/ToastContext'
 import { initializeGoogleAuth, triggerGoogleSignIn, type GoogleUserInfo } from '../utils/googleOAuth'
 import logoIconLight from '../assets/images/logo-icon-light.png'
 import logoIconDark from '../assets/images/logo-icon-dark.png'
+import mechanicOnboarding from '../assets/images/mechanicOnboarding.jpg'
 import './ProModal.css'
 
 interface ProModalProps {
@@ -202,110 +203,130 @@ export default function ProModal({
 
   return (
     <dialog ref={dialogRef} className="modal modal-pro" id="modal-pro">
-      <div className="modal-header">
-        <div className="modal-brand">
-          <div className="modal-brand-icon modal-brand-icon--light">
-            <img src={logoIconLight} alt="Peepeep" className="modal-brand-img" />
-          </div>
-          <div className="modal-brand-icon modal-brand-icon--dark">
-            <img src={logoIconDark} alt="Peepeep" className="modal-brand-img" />
-          </div>
-          <div className="modal-brand-text">
-            <h3>Peepeep <span className="pro-badge">PRO</span></h3>
-            <p className="modal-brand-sub">Zero monthly fees.</p>
-          </div>
-        </div>
-        <span className="material-icons-round close-icon" onClick={handleClose}>
+      <div className="modal-pro-card">
+        {/* Close button — top-right corner of the card */}
+        <span className="material-icons-round close-icon modal-close-corner" onClick={handleClose}>
           close
         </span>
-      </div>
-      <form onSubmit={handleSubmit} id="pro-form">
-        <div className="modal-body">
-          {(isGoogleLoading || isSubmitting) ? (
-            <div className="pro-processing">
-              <div className="pro-spinner" aria-hidden="true">
-                <span className="material-icons-round">{isGoogleLoading ? 'login' : 'hourglass_top'}</span>
-              </div>
-              <p className="pro-text">
-                {isGoogleLoading
-                  ? (language === 'en' ? 'Signing in with Google...' : 'Connexion avec Google...')
-                  : (language === 'en' ? 'Applying...' : 'Envoi en cours...')}
-              </p>
-              <div className="pro-dots">
-                <span className="pro-dot" />
-                <span className="pro-dot" />
-                <span className="pro-dot" />
-              </div>
-            </div>
-          ) : (
-            <>
-          <p className="pro-desc">{t('pro_desc')}</p>
+      <div className="modal-pro-inner">
 
-          <div className="pro-fields">
-            <div className="pro-field">
-              <label className="form-label">{t('label_biz')}</label>
-              <input
-                type="text"
-                className="form-control"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="Joe's Garage"
-                id="quick-biz-name"
-                required
-              />
-            </div>
-            <div className="pro-field">
-              <label className="form-label">Full Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Joseph Smith"
-                required
-              />
-            </div>
-            <div className="pro-field">
-              <label className="form-label">{t('label_email')}</label>
-              <input
-                type="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="partner@shop.com"
-                required
-              />
+        {/* ── LEFT: form column ── */}
+        <div className="modal-pro-left">
+          <div className="modal-header">
+            <div className="modal-brand">
+              <div className="modal-brand-icon modal-brand-icon--light">
+                <img src={logoIconLight} alt="Peepeep" className="modal-brand-img" />
+              </div>
+              <div className="modal-brand-icon modal-brand-icon--dark">
+                <img src={logoIconDark} alt="Peepeep" className="modal-brand-img" />
+              </div>
+              <div className="modal-brand-text">
+                <h3>Peepeep <span className="pro-badge">PRO</span></h3>
+                <p className="modal-brand-sub">Zero monthly fees.</p>
+              </div>
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary pro-submit-btn"
-            disabled={isSubmitting}
-          >
-            {t('btn_apply')}
-          </button>
+          <form onSubmit={handleSubmit} id="pro-form">
+            <div className="modal-body">
+              {(isGoogleLoading || isSubmitting) ? (
+                <div className="pro-processing">
+                  <div className="pro-spinner" aria-hidden="true">
+                    <span className="material-icons-round">{isGoogleLoading ? 'login' : 'hourglass_top'}</span>
+                  </div>
+                  <p className="pro-text">
+                    {isGoogleLoading
+                      ? (language === 'en' ? 'Signing in with Google...' : 'Connexion avec Google...')
+                      : (language === 'en' ? 'Applying...' : 'Envoi en cours...')}
+                  </p>
+                  <div className="pro-dots">
+                    <span className="pro-dot" />
+                    <span className="pro-dot" />
+                    <span className="pro-dot" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="pro-fields">
+                    <div className="pro-field">
+                      <label className="form-label">{t('label_biz')}</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="Joe's Garage"
+                        id="quick-biz-name"
+                        required
+                      />
+                    </div>
+                    <div className="pro-field">
+                      <label className="form-label">Full Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Joseph Smith"
+                        required
+                      />
+                    </div>
+                    <div className="pro-field">
+                      <label className="form-label">{t('label_email')}</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="partner@shop.com"
+                        required
+                      />
+                    </div>
+                  </div>
 
-          <div className="auth-divider">or</div>
+                  <button
+                    type="submit"
+                    className="btn btn-primary pro-submit-btn"
+                    disabled={isSubmitting}
+                  >
+                    {t('btn_apply')}
+                  </button>
 
-          <button
-            type="button"
-            className="btn-google"
-            onClick={handleGoogleSignIn}
-            disabled={isGoogleLoading}
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Continue with Google
-          </button>
-            </>
-          )}
+                  <div className="auth-divider">or</div>
+
+                  <button
+                    type="button"
+                    className="btn-google"
+                    onClick={handleGoogleSignIn}
+                    disabled={isGoogleLoading}
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
         </div>
-      </form>
+
+        {/* ── RIGHT: image panel ── */}
+        <div className="modal-pro-right">
+          <img src={mechanicOnboarding} alt="" className="modal-pro-right-img" />
+          <div className="modal-pro-right-overlay">
+            <p className="modal-pro-right-title">Fill your bays faster</p>
+            <p className="modal-pro-right-desc">
+              Qualified local drivers, transparent jobs, and ready-to-book work sent directly to your shop.
+            </p>
+          </div>
+        </div>
+
+      </div>
+      </div>{/* modal-pro-card */}
 
       {/* Business Name Prompt Modal for Google Sign-In */}
       {showBusinessNamePrompt && googleUserInfo && (
